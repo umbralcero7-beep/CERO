@@ -1,0 +1,118 @@
+"use client";
+
+import { useState } from "react";
+import { getPersonalizedRecommendations, type PersonalizedRecommendationsOutput } from "@/ai/flows/personalized-recommendations";
+import { analyzeJournalEntry, type JournalAnalysisOutput } from "@/ai/flows/analyze-journal-entry";
+import { CeroBot } from "@/components/dashboard/cero-bot";
+import { MoodSelector } from "@/components/dashboard/mood-selector";
+import { RecommendationCard } from "@/components/dashboard/recommendation-card";
+import { useToast } from "@/hooks/use-toast";
+import { JournalDialog } from "@/components/journal/journal-dialog";
+import { useUser, useFirestore } from "@/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { HabitReminder } from "@/components/habits/habit-reminder";
+
+export default function DashboardPage() {
+  const [mood, setMood] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<PersonalizedRecommendationsOutput | null>(null);
+  const [journalAnalysis, setJournalAnalysis] = useState<JournalAnalysisOutput | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isJournalOpen, setIsJournalOpen] = useState(false);
+  const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const handleMoodSelect = async (selectedMood: string) => {
+    if (loading) return;
+    setMood(selectedMood);
+    setRecommendations(null);
+    setJournalAnalysis(null);
+    setIsJournalOpen(true); // Open journal dialog
+  };
+
+  const handleJournalSave = async (notes: string) => {
+    if (!mood || !user) return;
+
+    setLoading(true);
+    setRecommendations(null);
+    setJournalAnalysis(null);
+    setIsJournalOpen(false);
+
+    try {
+      // Save mood log with notes to Firestore
+      const moodLogRef = collection(firestore, 'users', user.uid, 'moodLogs');
+      await addDoc(moodLogRef, {
+        userId: user.uid,
+        mood: mood,
+        notes: notes,
+        timestamp: serverTimestamp()
+      });
+
+      toast({
+        title: "Registro de ánimo guardado",
+        description: "Tus notas y estado de ánimo se han guardado.",
+      });
+
+      // Fetch recommendations and journal analysis in parallel
+      const [recResult, analysisResult] = await Promise.all([
+        getPersonalizedRecommendations({ mood }),
+        notes.trim() ? analyzeJournalEntry({ journalText: notes }) : Promise.resolve(null)
+      ]);
+
+      setRecommendations(recResult);
+      if (analysisResult) {
+        setJournalAnalysis(analysisResult);
+      }
+
+    } catch (error) {
+      console.error("Error al obtener las recomendaciones o el análisis:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudieron procesar tus datos. Por favor, inténtalo de nuevo.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto max-w-3xl">
+      <HabitReminder />
+      <div className="flex flex-col items-center gap-8 text-center">
+        <CeroBot />
+        <div className="space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline">¿Cómo te sientes hoy?</h2>
+            <p className="text-muted-foreground">Tu selección nos ayudará a darte un mejor acompañamiento.</p>
+        </div>
+        <MoodSelector
+          onMoodSelect={handleMoodSelect}
+          selectedMood={mood}
+          disabled={loading}
+        />
+
+        {mood && (
+          <JournalDialog
+            open={isJournalOpen}
+            onOpenChange={setIsJournalOpen}
+            onSave={handleJournalSave}
+            mood={mood}
+            loading={loading}
+          />
+        )}
+        
+        {(loading || recommendations || journalAnalysis) && (
+            <div className="w-full flex justify-center pt-8">
+                <RecommendationCard 
+                  loading={loading} 
+                  recommendations={recommendations} 
+                  journalAnalysis={journalAnalysis}
+                  mood={mood} 
+                />
+            </div>
+        )}
+
+      </div>
+    </div>
+  );
+}

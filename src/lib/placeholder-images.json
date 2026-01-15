@@ -1,0 +1,88 @@
+{
+  "placeholderImages": [
+    {
+      "id": "library_1",
+      "description": "Book cover for The Subtle Art of Not Giving a F*ck",
+      "imageUrl": "https://images.unsplash.com/photo-1639414839072-a5c625cced5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvcmFuZ2UlMjBib29rfGVufDB8fHx8MTc2NjI5NjY3OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "orange book"
+    },
+    {
+      "id": "library_2",
+      "description": "Book cover for The Power of Now",
+      "imageUrl": "https://images.unsplash.com/photo-1562494400-5b335a653209?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c2t5JTIwY2xvdWRzfGVufDB8fHx8MTc2NjIzNzM0OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sky clouds"
+    },
+    {
+      "id": "library_3",
+      "description": "Book cover for Breaking the Habit of Being Yourself",
+      "imageUrl": "https://images.unsplash.com/photo-1732454827988-95972d793f1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxicmFpbiUyMHNpbGhvdWV0dGV8ZW58MHx8fHwxNzY2Mjk2Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "brain silhouette"
+    },
+    {
+      "id": "library_4",
+      "description": "Book cover for How to Make Good Things Happen",
+      "imageUrl": "https://images.unsplash.com/photo-1493612276216-ee3925520721?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxsaWdodCUyMGJ1bGJ8ZW58MHx8fHwxNzY2Mjk2Njc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "light bulb"
+    },
+    {
+      "id": "library_5",
+      "description": "Book cover for Emotional Intelligence",
+      "imageUrl": "https://images.unsplash.com/photo-1712861712153-80a00199c83f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxhYnN0cmFjdCUyMGZhY2VzfGVufDB8fHx8MTc2NjI5NjY3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract faces"
+    },
+    {
+      "id": "library_6",
+      "description": "Book cover for The 48 Laws of Power",
+      "imageUrl": "https://images.unsplash.com/photo-1620632524020-484c0dcf230a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaGVzcyUyMGtpbmd8ZW58MHx8fHwxNzY2Mjk2Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chess king"
+    },
+    {
+      "id": "library_7",
+      "description": "Book cover for Secrets of the Millionaire Mind",
+      "imageUrl": "https://images.unsplash.com/photo-1517097473408-c0d7983cb95c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxnb2xkJTIwY29pbnN8ZW58MHx8fHwxNzY2MjMxNzIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gold coins"
+    },
+    {
+      "id": "library_8",
+      "description": "Book cover for Rich Dad Poor Dad",
+      "imageUrl": "https://images.unsplash.com/photo-1556525494-33a88575aa97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx0d28lMjBob3VzZXN8ZW58MHx8fHwxNzY2Mjk2Njc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "two houses"
+    },
+    {
+      "id": "library_9",
+      "description": "Book cover for Dark Psychology",
+      "imageUrl": "https://images.unsplash.com/photo-1505274664176-44ccaa7969a8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYXJrJTIwZXllfGVufDB8fHx8MTc2NjI5NjY3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dark eye"
+    },
+    {
+      "id": "library_10",
+      "description": "Book cover for The Miracle Morning",
+      "imageUrl": "https://images.unsplash.com/photo-1673205988710-adb204e6932d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzdW5yaXNlJTIwY2xvY2t8ZW58MHx8fHwxNzY2MjUwMDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sunrise clock"
+    },
+    {
+      "id": "library_11",
+      "description": "Book cover for Your Erroneous Zones",
+      "imageUrl": "https://images.unsplash.com/photo-1651313527570-8bec5a11922c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cm9hZCUyMG1hcHxlbnwwfHx8fDE3NjYyOTY2Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "road map"
+    },
+    {
+      "id": "library_12",
+      "description": "Book cover for Meditations",
+      "imageUrl": "https://images.unsplash.com/photo-1617570874287-db95c419c432?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyb21hbiUyMHN0YXR1ZXxlbnwwfHx8fDE3NjYyOTY2Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "roman statue"
+    },
+    {
+      "id": "library_13",
+      "description": "Book cover for Unlimited Power",
+      "imageUrl": "https://images.unsplash.com/photo-1551632811-561732d1e306?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMHBlYWt8ZW58MHx8fHwxNzY2NTQ4NDYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain peak"
+    },
+    {
+      "id": "library_14",
+      "description": "Book cover for Atomic Habits",
+      "imageUrl": "https://images.unsplash.com/photo-1544716278-e513176f20b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNXx8Ym9va3N8ZW58MHx8fHwxNzY2ODU0NTI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stacked books"
+    }
+  ]
+}

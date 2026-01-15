@@ -1,0 +1,210 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model where all
+ * personal user data is isolated within a dedicated data tree. Access is
+ * granted based on the user's authenticated ID matching the path segment,
+ * ensuring users can only interact with their own information. A separate,
+ * top-level collection provides public, read-only content for all users.
+ *
+ * Data Structure: All private, user-specific data (profiles, mood logs, habits)
+ * is nested hierarchically under `/users/{userId}`. This structure inherently
+ * links data to its owner. Publicly accessible data, such as emotional
+ * readings, is stored in a separate top-level collection `/emotionalReadings`.
+ *
+ * Key Security Decisions:
+ * - User Isolation: A user can only access documents within their own
+ *   `/users/{userId}` path. They cannot read, write, or even know about the
+ *   existence of data belonging to other users.
+ * - No User Listing: The top-level `/users` collection is not listable to
+ *   prevent enumeration of all application users.
+ * - Public Read-Only Content: The `/emotionalReadings` collection is readable
+ *   by anyone (including unauthenticated users) but is not writable from the
+ *   client-side. This content is expected to be managed by administrators using
+ *   the Admin SDK.
+ * - Profile Creation: Users are permitted to create their own user profile
+ *   document, but they cannot delete it via the client.
+ *
+ * Denormalization for Authorization: This ruleset primarily relies on path-based
+ * authorization (`/users/{userId}/...`), which is the most performant method as
+ * it avoids extra document reads. For user-specific subcollections, we also
+ * enforce that a `userId` field within the document matches the `userId` in the
+ * path upon creation, ensuring relational integrity from the start.
+ *
+ * Structural Segregation: Private user data (`/users/{userId}/*`) and public
+ * content (`/emotionalReadings`) are stored in entirely separate top-level
+ * collections. This clear separation simplifies rule logic, enhances security,
+ * and improves query performance.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ----------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user's ID matches the provided userId.
+     * This is the foundation of the user-ownership security model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Ensures an incoming document contains a userId field that matches the
+     * user ID from the path, enforcing relational integrity on creation.
+     */
+    function newDocHasValidUserId(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Ensures the userId field on a document cannot be changed after creation.
+     */
+    function userIdIsImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+    
+    /**
+     * Ensures an incoming HabitLog contains a habitId that matches the
+     * habitId from the path.
+     */
+    function newDocHasValidHabitId(habitId) {
+      return request.resource.data.habitId == habitId;
+    }
+
+    /**
+     * Ensures the habitId field on a HabitLog cannot be changed.
+     */
+    function habitIdIsImmutable() {
+      return request.resource.data.habitId == resource.data.habitId;
+    }
+
+    // ----------------------------------------------------------------------
+    // Collection Group Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Allows a user to query across all their 'habitLogs' collections.
+     * @path /{path=**}/habitLogs/{habitLogId}
+     * @allow (list) User 'user_abc' querying for all their completed habits, where each habitLog doc has `userId: 'user_abc'`.
+     * @deny (list) User 'user_xyz' trying to query for habit logs where `userId` is 'user_abc'.
+     * @principle Enables collection group queries for user-owned data, essential for features like achievements and progress calendar.
+     */
+    match /{path=**}/habitLogs/{habitLogId} {
+      allow list: if isSignedIn() && request.query.where.userId == request.auth.uid;
+    }
+    
+    // ----------------------------------------------------------------------
+    // User Profile Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (get) A signed-in user ('user_abc') reading their own profile at `/users/user_abc`.
+     * @allow (create) A new user ('user_xyz') creating their profile document at `/users/user_xyz`.
+     * @deny (list) Any user trying to list all documents in the `/users` collection.
+     * @deny (update) User 'user_abc' trying to update the profile of 'user_xyz'.
+     * @principle Restricts access to a user's own data tree and allows self-creation of a profile.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isOwner(userId) && resource != null && request.resource.data.id == resource.data.id;
+      allow delete: if false;
+
+      // --------------------------------------------------------------------
+      // User MoodLog Rules
+      // --------------------------------------------------------------------
+
+      /**
+       * @description Manages the mood logs belonging to a specific user.
+       * @path /users/{userId}/moodLogs/{moodLogId}
+       * @allow (create) User 'user_abc' creating a new mood log in their own subcollection.
+       * @allow (list) User 'user_abc' listing all of their own mood logs.
+       * @deny (get) User 'user_xyz' trying to read a mood log belonging to 'user_abc'.
+       * @deny (update) User 'user_abc' trying to change the `userId` field on an existing mood log.
+       * @principle Enforces strict ownership for all operations on a user's private data.
+       */
+      match /moodLogs/{moodLogId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && newDocHasValidUserId(userId);
+        allow update: if isOwner(userId) && resource != null && userIdIsImmutable();
+        allow delete: if isOwner(userId) && resource != null;
+      }
+
+      // --------------------------------------------------------------------
+      // User Habit Rules
+      // --------------------------------------------------------------------
+
+      /**
+       * @description Manages the habits being tracked by a specific user.
+       * @path /users/{userId}/habits/{habitId}
+       * @allow (create) User 'user_abc' creating a new habit to track.
+       * @allow (delete) User 'user_abc' deleting one of their own habits.
+       * @deny (list) User 'user_xyz' trying to list habits belonging to 'user_abc'.
+       * @deny (update) User 'user_abc' trying to change the `userId` on one of their habits.
+       * @principle Enforces strict ownership for all operations on a user's private data.
+       */
+      match /habits/{habitId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && newDocHasValidUserId(userId);
+        allow update: if isOwner(userId) && resource != null && userIdIsImmutable();
+        allow delete: if isOwner(userId) && resource != null;
+
+        // ------------------------------------------------------------------
+        // User HabitLog Rules
+        // ------------------------------------------------------------------
+
+        /**
+         * @description Manages completion logs for a specific habit of a user.
+         * @path /users/{userId}/habits/{habitId}/habitLogs/{habitLogId}
+         * @allow (create) User 'user_abc' logging a completion for their habit 'habit_123'.
+         * @allow (list) User 'user_abc' listing all logs for their habit 'habit_123'.
+         * @deny (get) User 'user_xyz' attempting to read any habit log for user 'user_abc'.
+         * @deny (update) User 'user_abc' trying to re-associate a log with a different habit by changing `habitId`.
+         * @principle Enforces strict ownership inherited from the path for deeply nested private data.
+         */
+        match /habitLogs/{habitLogId} {
+          allow get: if isOwner(userId);
+          allow list: if isOwner(userId);
+          allow create: if isOwner(userId) && newDocHasValidHabitId(habitId);
+          allow update: if isOwner(userId) && resource != null && habitIdIsImmutable();
+          allow delete: if isOwner(userId) && resource != null;
+        }
+      }
+    }
+    
+    // ----------------------------------------------------------------------
+    // Public Content Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Manages the library of emotional readings available to all users.
+     * @path /emotionalReadings/{emotionalReadingId}
+     * @allow (get) Any user, signed-in or anonymous, reading an article.
+     * @allow (list) Any user, signed-in or anonymous, listing all available articles.
+     * @deny (create) Any client attempting to add a new article to the library.
+     * @deny (delete) Any client attempting to remove an article from the library.
+     * @principle Provides public read access while restricting all writes to backend/admin processes only.
+     */
+    match /emotionalReadings/{emotionalReadingId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

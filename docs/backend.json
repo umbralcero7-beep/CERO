@@ -1,0 +1,294 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Umbral application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp of the user's last login.",
+          "format": "date-time"
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role, used for monetization (e.g., 'free', 'pro').",
+          "enum": ["free", "pro"]
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "createdAt"
+      ]
+    },
+    "MoodLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MoodLog",
+      "type": "object",
+      "description": "Represents a user's mood log entry.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MoodLog entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N MoodLog)"
+        },
+        "mood": {
+          "type": "string",
+          "description": "The mood selected by the user (e.g., Happy, Sad, Stressed)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the mood was logged.",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes added by the user to describe their mood."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mood",
+        "timestamp"
+      ]
+    },
+    "Habit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Habit",
+      "type": "object",
+      "description": "Represents a habit tracked by the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Habit entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Habit)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the habit (e.g., 'Meditate', 'Read')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the habit."
+        },
+        "frequency": {
+          "type": "string",
+          "description": "How often the habit should be performed (e.g., 'Daily', 'Weekly')."
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Indicates if the habit is currently active and being tracked."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "frequency",
+        "active"
+      ]
+    },
+    "HabitLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HabitLog",
+      "type": "object",
+      "description": "Represents a log entry for a specific habit on a specific date.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the HabitLog entity."
+        },
+        "habitId": {
+          "type": "string",
+          "description": "Reference to Habit. (Relationship: Habit 1:N HabitLog)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date for which the habit was logged.",
+          "format": "date"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Indicates if the habit was completed on the specified date."
+        }
+      },
+      "required": [
+        "id",
+        "habitId",
+        "date",
+        "completed"
+      ]
+    },
+    "EmotionalReading": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmotionalReading",
+      "type": "object",
+      "description": "Represents a reading material in the emotional library.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the EmotionalReading entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the reading."
+        },
+        "author": {
+          "type": "string",
+          "description": "Author of the reading."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the reading (e.g., 'Calm', 'Energy')."
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Type of content (e.g., 'Text', 'Audio')."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL to access the reading content.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "author",
+        "category",
+        "contentType",
+        "url"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.  Path-based ownership enforced via security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/moodLogs/{moodLogId}",
+        "definition": {
+          "entityName": "MoodLog",
+          "schema": {
+            "$ref": "#/backend/entities/MoodLog"
+          },
+          "description": "Stores mood log entries for a specific user. Path-based ownership enforced via security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "moodLogId",
+              "description": "The unique identifier for the mood log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/habits/{habitId}",
+        "definition": {
+          "entityName": "Habit",
+          "schema": {
+            "$ref": "#/backend/entities/Habit"
+          },
+          "description": "Stores habit information for a specific user. Path-based ownership enforced via security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "habitId",
+              "description": "The unique identifier for the habit."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/habits/{habitId}/habitLogs/{habitLogId}",
+        "definition": {
+          "entityName": "HabitLog",
+          "schema": {
+            "$ref": "#/backend/entities/HabitLog"
+          },
+          "description": "Stores habit log entries for a specific habit of a specific user. Path-based ownership enforced via security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "habitId",
+              "description": "The unique identifier for the habit."
+            },
+            {
+              "name": "habitLogId",
+              "description": "The unique identifier for the habit log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/emotionalReadings/{emotionalReadingId}",
+        "definition": {
+          "entityName": "EmotionalReading",
+          "schema": {
+            "$ref": "#/backend/entities/EmotionalReading"
+          },
+          "description": "Stores emotional reading materials available to all users.",
+          "params": [
+            {
+              "name": "emotionalReadingId",
+              "description": "The unique identifier for the emotional reading."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure data isolation and easy management of security rules, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data (mood logs, habits, habit logs) are stored under the `/users/{userId}` collection, which provides path-based ownership, simplifying security rules. The emotional readings are stored in a root-level collection, ensuring all documents share the same security requirements.\n\nAuthorization Independence:\nUser-owned data is structured under `/users/{userId}`, meaning access control can be easily managed using the `request.auth.uid == userId` condition in the security rules, eliminating the need for `get()` calls and ensuring atomic operations.\n\nQAPs Support:\nSegregation is achieved by storing different types of data in separate collections. For example:\n*   User data segregation: Mood logs, habits, and habit logs are kept separate under each user's document, enabling efficient querying and security rules tailored to user-owned data.\n*   Emotional readings, accessible to all users, are placed in a single collection at the root level.\nThis structure supports secure list operations because each collection has a well-defined and consistent security posture. For instance, listing mood logs under a user only requires checking if the requesting user ID matches the `userId` in the path."
+  }
+}
