@@ -182,6 +182,51 @@
         "contentType",
         "url"
       ]
+    },
+    "ReadingReflection": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ReadingReflection",
+      "type": "object",
+      "description": "Represents a user's reflection after a reading session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ReadingReflection entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User."
+        },
+        "bookId": {
+          "type": "string",
+          "description": "Reference to the EmotionalReading item."
+        },
+        "bookTitle": {
+          "type": "string",
+          "description": "Title of the book read."
+        },
+        "reflection": {
+          "type": "string",
+          "description": "The user's reflection text."
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration of the reading session in seconds."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the reflection was saved.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "bookId",
+        "bookTitle",
+        "reflection",
+        "duration",
+        "timestamp"
+      ]
     }
   },
   "auth": {
@@ -273,6 +318,26 @@
         }
       },
       {
+        "path": "/users/{userId}/readingReflections/{reflectionId}",
+        "definition": {
+          "entityName": "ReadingReflection",
+          "schema": {
+            "$ref": "#/backend/entities/ReadingReflection"
+          },
+          "description": "Stores reading reflections for a specific user. Path-based ownership enforced via security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "reflectionId",
+              "description": "The unique identifier for the reading reflection."
+            }
+          ]
+        }
+      },
+      {
         "path": "/emotionalReadings/{emotionalReadingId}",
         "definition": {
           "entityName": "EmotionalReading",
@@ -289,6 +354,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure data isolation and easy management of security rules, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data (mood logs, habits, habit logs) are stored under the `/users/{userId}` collection, which provides path-based ownership, simplifying security rules. The emotional readings are stored in a root-level collection, ensuring all documents share the same security requirements.\n\nAuthorization Independence:\nUser-owned data is structured under `/users/{userId}`, meaning access control can be easily managed using the `request.auth.uid == userId` condition in the security rules, eliminating the need for `get()` calls and ensuring atomic operations.\n\nQAPs Support:\nSegregation is achieved by storing different types of data in separate collections. For example:\n*   User data segregation: Mood logs, habits, and habit logs are kept separate under each user's document, enabling efficient querying and security rules tailored to user-owned data.\n*   Emotional readings, accessible to all users, are placed in a single collection at the root level.\nThis structure supports secure list operations because each collection has a well-defined and consistent security posture. For instance, listing mood logs under a user only requires checking if the requesting user ID matches the `userId` in the path."
+    "reasoning": "The Firestore structure is designed to ensure data isolation and easy management of security rules, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data (mood logs, habits, habit logs, reading reflections) are stored under the `/users/{userId}` collection, which provides path-based ownership, simplifying security rules. The emotional readings are stored in a root-level collection, ensuring all documents share the same security requirements.\n\nAuthorization Independence:\nUser-owned data is structured under `/users/{userId}`, meaning access control can be easily managed using the `request.auth.uid == userId` condition in the security rules, eliminating the need for `get()` calls and ensuring atomic operations.\n\nQAPs Support:\nSegregation is achieved by storing different types of data in separate collections. For example:\n*   User data segregation: Mood logs, habits, habit logs and reading reflections are kept separate under each user's document, enabling efficient querying and security rules tailored to user-owned data.\n*   Emotional readings, accessible to all users, are placed in a single collection at the root level.\nThis structure supports secure list operations because each collection has a well-defined and consistent security posture. For instance, listing mood logs under a user only requires checking if the requesting user ID matches the `userId` in the path."
   }
 }

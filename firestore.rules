@@ -184,6 +184,24 @@ service cloud.firestore {
           allow delete: if isOwner(userId) && resource != null;
         }
       }
+
+      // --------------------------------------------------------------------
+      // User Reading Reflection Rules
+      // --------------------------------------------------------------------
+      /**
+       * @description Manages the reading reflections belonging to a specific user.
+       * @path /users/{userId}/readingReflections/{reflectionId}
+       * @allow (create) User 'user_abc' creating a new reflection in their own subcollection.
+       * @deny (update) User 'user_abc' trying to change the `userId` field on an existing reflection.
+       * @principle Enforces strict ownership for all operations on a user's private data.
+       */
+      match /readingReflections/{reflectionId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && newDocHasValidUserId(userId);
+        allow update: if isOwner(userId) && resource != null && userIdIsImmutable();
+        allow delete: if isOwner(userId) && resource != null;
+      }
     }
     
     // ----------------------------------------------------------------------

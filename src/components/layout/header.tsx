@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Bot } from "lucide-react";
+import { LogOut, Bot, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function Header() {
@@ -55,6 +55,13 @@ export function Header() {
               </p>
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/pro">
+                <Sparkles className="mr-2 h-4 w-4" />
+                <span>Actualizar a Pro</span>
+              </Link>
+            </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />

@@ -2,12 +2,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ListTodo, BookHeart, BarChart3, Menu, X, BrainCircuit } from 'lucide-react';
+import { Home, ListTodo, BookHeart, BarChart3, Menu, X, BrainCircuit, BookText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/journal', label: 'Diario', icon: BookText },
   { href: '/habits', label: 'Hábitos', icon: ListTodo },
   { href: '/library', label: 'Librería', icon: BookHeart },
   { href: '/progress', label: 'Progreso', icon: BarChart3 },

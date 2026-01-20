@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  updateProfile,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +41,6 @@ export function AuthForm() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Create user document in Firestore
         const userRef = doc(firestore, 'users', user.uid);
         await setDoc(userRef, {
           id: user.uid,
@@ -87,6 +86,48 @@ export function AuthForm() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Correo electrónico requerido",
+        description: "Por favor, introduce tu correo para restablecer la contraseña.",
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({
+        title: "Correo de recuperación enviado",
+        description: "Revisa tu bandeja de entrada para restablecer tu contraseña.",
+      });
+    } catch (error) {
+      let errorMessage = "Ocurrió un error inesperado.";
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/invalid-email':
+            errorMessage = "El formato del correo electrónico no es válido.";
+            break;
+          case 'auth/user-not-found':
+            errorMessage = "No se encontró ninguna cuenta con este correo.";
+            break;
+          default:
+            errorMessage = "Error: " + error.message;
+            break;
+        }
+      }
+      toast({
+        variant: "destructive",
+        title: "Error al enviar el correo",
+        description: errorMessage,
+      });
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Tabs defaultValue="login" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
@@ -114,7 +155,12 @@ export function AuthForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="login-password">Contraseña</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="login-password">Contraseña</Label>
+                <Button variant="link" className="p-0 h-auto text-xs text-muted-foreground" onClick={handlePasswordReset} disabled={loading}>
+                  ¿Olvidaste tu contraseña?
+                </Button>
+              </div>
               <Input
                 id="login-password"
                 type="password"

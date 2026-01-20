@@ -1,11 +1,13 @@
 'use client';
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Book, Search } from "lucide-react";
 import { ContentGrid } from "@/components/library/content-grid";
 import { Button } from "@/components/ui/button";
 import { libraryItems } from "@/lib/data";
 import type { LibraryItem } from "@/lib/data";
+import { InProgressSection } from "@/components/library/in-progress-section";
+import { Separator } from "@/components/ui/separator";
 
 export default function LibraryPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,29 +41,41 @@ export default function LibraryPage() {
           Un refugio digital con contenido curado para nutrir cada estado emocional.
         </p>
       </div>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input 
-            placeholder="Buscar por título o autor..." 
-            className="pl-10" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+
+      <InProgressSection />
+
+      <Separator />
+
+      <div className="space-y-6" id="all-books">
+        <div className="space-y-2">
+            <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl font-headline flex items-center gap-2">
+                <Book className="h-6 w-6" /> Todos los Libros
+            </h3>
         </div>
-        <div className="flex gap-2 flex-wrap">
-            {categories.map(category => (
-                 <Button 
-                    key={category} 
-                    variant={activeCategory === category ? 'default' : 'outline'}
-                    onClick={() => handleCategoryClick(category)}
-                >
-                    {category}
-                </Button>
-            ))}
+        <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input 
+                placeholder="Buscar por título o autor..." 
+                className="pl-10" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+                {categories.map(category => (
+                    <Button 
+                        key={category} 
+                        variant={activeCategory === category ? 'default' : 'outline'}
+                        onClick={() => handleCategoryClick(category)}
+                    >
+                        {category}
+                    </Button>
+                ))}
+            </div>
         </div>
+        <ContentGrid items={filteredItems} />
       </div>
-      <ContentGrid items={filteredItems} />
     </div>
   );
 }
