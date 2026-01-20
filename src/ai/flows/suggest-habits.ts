@@ -56,7 +56,25 @@ const suggestHabitsFlow = ai.defineFlow(
     outputSchema: HabitSuggestionOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    return output || [];
+    try {
+      const { output } = await prompt(input);
+      return output || [];
+    } catch (e) {
+        console.error('AI habit suggestion flow failed, providing fallback:', e);
+        return [
+          {
+            name: 'Meditación de 5 Minutos',
+            description: 'Encuentra un lugar tranquilo y concéntrate en tu respiración.'
+          },
+          {
+            name: 'Pausa de Gratitud',
+            description: 'Anota una cosa por la que te sientas agradecido/a hoy.'
+          },
+          {
+            name: 'Estiramiento Consciente',
+            description: 'Tómate 2 minutos para estirar suavemente tu cuerpo y liberar tensión.'
+          }
+        ];
+    }
   }
 );

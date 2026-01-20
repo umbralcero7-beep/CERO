@@ -4,8 +4,8 @@ import { libraryItems } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, FileWarning, Timer, Bookmark, Save, Info } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, FileWarning, Timer, Bookmark, Save, Info, Crown, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
@@ -22,6 +22,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { cn } from '@/lib/utils';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FIVE_MINUTES_IN_SECONDS = 300;
 
@@ -29,6 +31,7 @@ export default function BookPage() {
   const params = useParams();
   const { id } = params;
   const { toast } = useToast();
+  const { isPro, isLoading: isUserLoading } = useUserProfile();
 
   const [time, setTime] = useState(FIVE_MINUTES_IN_SECONDS);
   const [isRunning, setIsRunning] = useState(false);
@@ -38,6 +41,7 @@ export default function BookPage() {
 
   const item = libraryItems.find((i) => i.id === id);
   const image = PlaceHolderImages.find((img) => img.id === item?.imageId);
+  const isPremium = item?.isPremium ?? false;
 
   // Forest-like timer logic
   useEffect(() => {
@@ -136,6 +140,8 @@ export default function BookPage() {
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+  
+  const canViewContent = !isPremium || (isPremium && isPro);
 
   return (
     <div className="space-y-8 h-full flex flex-col">
@@ -191,7 +197,6 @@ export default function BookPage() {
             </div>
              <Card>
                 <CardContent className="p-4 space-y-4">
-                   {/* Forest-like Timer */}
                   <div className='space-y-2'>
                     <h3 className="font-semibold flex items-center gap-2"><Timer className="w-5 h-5"/> Sesión de Enfoque</h3>
                      <p className="text-sm text-muted-foreground flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 shrink-0"/>Inicia el temporizador para entrar en modo de lectura profunda sin distracciones.</p>
@@ -208,7 +213,6 @@ export default function BookPage() {
                     </div>
                     {isRunning && <Progress value={(time / FIVE_MINUTES_IN_SECONDS) * 100} className="w-full h-2" />}
                   </div>
-                   {/* Bookmark */}
                   <div className='space-y-2'>
                      <h3 className="font-semibold flex items-center gap-2"><Bookmark className="w-5 h-5"/> Marcador de página</h3>
                      {bookmarkedPage && (
@@ -236,20 +240,43 @@ export default function BookPage() {
         </div>
 
         <div className="md:col-span-3 h-full">
-          {item.pdfUrl ? (
-            <iframe
-              src={item.pdfUrl}
-              className={cn("w-full h-full min-h-[90vh] rounded-lg border", isRunning && "pointer-events-none")}
-              title={`Visor de PDF para ${item.title}`}
-            />
+          {isUserLoading ? (
+            <Skeleton className="w-full h-full min-h-[90vh] rounded-lg" />
+          ) : canViewContent ? (
+            item.pdfUrl ? (
+              <iframe
+                src={item.pdfUrl}
+                className={cn("w-full h-full min-h-[90vh] rounded-lg border", isRunning && "pointer-events-none")}
+                title={`Visor de PDF para ${item.title}`}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center bg-card rounded-lg p-8">
+                  <FileWarning className="w-16 h-16 text-muted-foreground mb-4" />
+                  <h2 className="text-xl font-semibold text-foreground">Contenido no disponible</h2>
+                  <p className="text-muted-foreground mt-2 max-w-md">
+                      Este libro todavía no tiene un archivo PDF asociado. Vuelve a intentarlo más tarde.
+                  </p>
+              </div>
+            )
           ) : (
-            <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center bg-card rounded-lg p-8">
-                <FileWarning className="w-16 h-16 text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold text-foreground">Contenido no disponible</h2>
-                <p className="text-muted-foreground mt-2 max-w-md">
-                    Este libro todavía no tiene un archivo PDF asociado. Vuelve a intentarlo más tarde.
+            <Card className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center bg-card rounded-lg p-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 justify-center text-accent">
+                  <Crown className="w-8 h-8"/> Contenido Pro
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-lg text-foreground max-w-md">
+                  Este libro es parte de nuestra colección Pro.
                 </p>
-            </div>
+                <p className="text-muted-foreground max-w-md">
+                  Actualiza tu plan para desbloquear este y cientos de otros recursos para potenciar tu bienestar.
+                </p>
+                <Button size="lg" className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <Sparkles className="mr-2 h-5 w-5"/> Actualizar a Pro
+                </Button>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

@@ -67,7 +67,17 @@ const personalizedRecommendationsFlow = ai.defineFlow(
     outputSchema: PersonalizedRecommendationsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (e) {
+      console.error('AI recommendation flow failed, providing fallback:', e);
+      // Return a default recommendation
+      const fallbackBook = libraryItems[0] || { title: 'un libro', author: 'un autor' };
+      return {
+        habitRecommendation: 'Dedica 5 minutos a la lectura consciente.',
+        readingRecommendation: `${fallbackBook.title} por ${fallbackBook.author}`,
+      };
+    }
   }
 );

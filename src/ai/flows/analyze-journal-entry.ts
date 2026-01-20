@@ -57,7 +57,15 @@ const journalAnalysisFlow = ai.defineFlow(
     outputSchema: JournalAnalysisOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (e) {
+      console.error('AI journal analysis flow failed, providing fallback:', e);
+      return {
+          summary: 'Gracias por tomarte el tiempo de escribir. Reflexionar sobre tus pensamientos es un paso valioso.',
+          keyEmotions: [],
+      };
+    }
   }
 );

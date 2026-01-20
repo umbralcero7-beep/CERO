@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Badge } from "@/components/ui/badge";
-import { Mic, FileText } from "lucide-react";
+import { Mic, FileText, Crown } from "lucide-react";
 import type { LibraryItem } from "@/lib/data";
 
 interface ContentGridProps {
@@ -29,7 +29,7 @@ export function ContentGrid({ items }: ContentGridProps) {
         const image = getImage(item.imageId);
         return (
           <Link href={`/library/${item.id}`} key={item.id} className="group">
-            <Card className="overflow-hidden h-full transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+            <Card className="overflow-hidden h-full transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl relative">
               <CardContent className="p-0 flex flex-col h-full">
                 <div className="relative aspect-[2/3] w-full">
                   {image && (
@@ -42,10 +42,18 @@ export function ContentGrid({ items }: ContentGridProps) {
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <Badge variant="secondary" className="absolute top-3 right-3">
-                    {item.type === 'Audio' ? <Mic className="h-3 w-3 mr-1" /> : <FileText className="h-3 w-3 mr-1" />}
-                    {item.type === 'Texto' ? 'Leer' : item.type}
-                  </Badge>
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    {item.isPremium && (
+                      <Badge className="bg-accent text-accent-foreground border-accent">
+                          <Crown className="h-3 w-3 mr-1" />
+                          Pro
+                      </Badge>
+                    )}
+                    <Badge variant="secondary">
+                      {item.type === 'Audio' ? <Mic className="h-3 w-3 mr-1" /> : <FileText className="h-3 w-3 mr-1" />}
+                      {item.type === 'Texto' ? 'Leer' : item.type}
+                    </Badge>
+                  </div>
                 </div>
                 <div className="p-4 space-y-1 flex-grow">
                   <h3 className="font-semibold text-lg leading-tight truncate group-hover:text-primary">{item.title}</h3>
