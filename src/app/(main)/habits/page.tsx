@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { HabitList } from "@/components/habits/habit-list";
 import { AddHabitDialog } from "@/components/habits/add-habit-dialog";
+import { KeyHabits } from "@/components/habits/key-habits";
 
 export default function HabitsPage() {
   return (
@@ -17,10 +18,12 @@ export default function HabitsPage() {
         <AddHabitDialog />
       </div>
 
+      <KeyHabits />
+
       <Card>
         <CardHeader>
           <CardTitle>Mis Hábitos</CardTitle>
-          <CardDescription>Activa o desactiva los hábitos que quieres seguir hoy.</CardDescription>
+          <CardDescription>Marca los hábitos completados y gestiona tu lista personal.</CardDescription>
         </CardHeader>
         <CardContent>
           <HabitList />

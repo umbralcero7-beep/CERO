@@ -6,6 +6,7 @@ import { FirebaseClientProvider } from '@/firebase';
 export const metadata: Metadata = {
   title: 'Umbral',
   description: 'Tu compañero para el bienestar.',
+  manifest: '/manifest.webmanifest',
 };
 
 export default function RootLayout({
