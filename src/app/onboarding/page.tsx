@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Wand2, Sparkles } from 'lucide-radix';
+import { Loader2, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const onboardingSchema = z.object({
