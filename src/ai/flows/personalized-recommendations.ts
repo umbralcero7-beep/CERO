@@ -47,16 +47,12 @@ export async function getPersonalizedRecommendations(
 const prompt = ai.definePrompt({
   name: 'personalizedRecommendationsPrompt',
   input: {schema: PersonalizedRecommendationsInputSchema},
-  output: {schema: z.object({
-    readingRecommendation: z
-    .string()
-    .describe('A recommended reading based on the user\'s mood.'),
-  })},
+  output: {schema: PersonalizedRecommendationsOutputSchema},
   prompt: `Eres Cero, un asistente de IA. Un usuario ha indicado que se siente {{{mood}}}.
 
-Sugiere una lectura que le sería de gran ayuda en este momento.
-
-Recomendación de Lectura: Elige uno de los siguientes libros que sea el más adecuado para el estado de ánimo del usuario. Devuelve solo el título y el autor del libro.
+Tu tarea es:
+1. **Sugerir una lectura**: Elige uno de los siguientes libros que sea el más adecuado para el estado de ánimo del usuario. Formatea tu respuesta como "Título por Autor".
+2. **Sugerir un hábito**: Basado en la lectura sugerida, crea un hábito simple y accionable. Por ejemplo: "Dedícale 5 minutos de lectura a '[Título del libro]'".
 
 Libros disponibles:
 {{#each books}}
@@ -72,12 +68,6 @@ const personalizedRecommendationsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const reading = output!.readingRecommendation;
-    const bookTitle = reading.split(' por ')[0];
-    
-    return {
-      readingRecommendation: reading,
-      habitRecommendation: `Dedícale 5 minutos de lectura a "${bookTitle}".`,
-    };
+    return output!;
   }
 );
