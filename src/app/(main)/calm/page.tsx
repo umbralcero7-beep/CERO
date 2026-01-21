@@ -2,14 +2,17 @@
 import { useState, useEffect } from 'react';
 import { BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const breathingCycle = [
-  { name: 'Inhala', duration: 4000, instruction: 'Inhala lentamente por la nariz...' },
-  { name: 'Sostén', duration: 4000, instruction: 'Sostén la respiración...' },
-  { name: 'Exhala', duration: 6000, instruction: 'Exhala suavemente por la boca...' },
-];
+import { useTranslation } from '@/components/providers/language-provider';
 
 export default function CalmPage() {
+  const { t } = useTranslation();
+  
+  const breathingCycle = [
+    { name: t('calm.phase.inhale'), duration: 4000, instruction: t('calm.instruction.inhale') },
+    { name: t('calm.phase.hold'), duration: 4000, instruction: t('calm.instruction.hold') },
+    { name: t('calm.phase.exhale'), duration: 6000, instruction: t('calm.instruction.exhale') },
+  ];
+
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -18,7 +21,7 @@ export default function CalmPage() {
     }, breathingCycle[phase].duration);
 
     return () => clearTimeout(timer);
-  }, [phase]);
+  }, [phase, breathingCycle]);
 
   const currentPhase = breathingCycle[phase];
 
@@ -26,10 +29,10 @@ export default function CalmPage() {
     <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
        <div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline flex items-center gap-2 justify-center">
-          <BrainCircuit className="h-8 w-8" /> Rincón de Calma
+          <BrainCircuit className="h-8 w-8" /> {t('calm.title')}
         </h2>
         <p className="mt-2 text-muted-foreground max-w-lg mx-auto">
-          Sigue la guía visual para encontrar un ritmo de respiración relajante.
+          {t('calm.description')}
         </p>
       </div>
 
@@ -37,7 +40,7 @@ export default function CalmPage() {
         {/* Outer pulsating circles for effect */}
         <div className={cn(
           "absolute w-full h-full rounded-full bg-primary/10 transition-transform ease-in-out",
-          currentPhase.name === 'Inhala' || currentPhase.name === 'Exhala' ? 'animate-pulse' : ''
+          currentPhase.name === t('calm.phase.inhale') || currentPhase.name === t('calm.phase.exhale') ? 'animate-pulse' : ''
         )} style={{ transitionDuration: '2000ms' }}></div>
         
         {/* Main breathing circle */}
@@ -47,7 +50,7 @@ export default function CalmPage() {
           )}
            style={{
              transitionDuration: `${currentPhase.duration}ms`,
-             transform: currentPhase.name === 'Inhala' ? 'scale(1.5)' : 'scale(1.0)',
+             transform: currentPhase.name === t('calm.phase.inhale') ? 'scale(1.5)' : 'scale(1.0)',
            }}
         ></div>
 

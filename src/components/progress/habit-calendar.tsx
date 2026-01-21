@@ -4,11 +4,13 @@ import { useCollection, useUser, useMemoFirebase, useFirestore } from '@/firebas
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Calendar } from '@/components/ui/calendar';
 import { Skeleton } from '../ui/skeleton';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale';
+import { useTranslation } from '../providers/language-provider';
 
 export function HabitCalendar() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { locale } = useTranslation();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [completedDays, setCompletedDays] = useState<Date[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +64,7 @@ export function HabitCalendar() {
             selected={date}
             onSelect={setDate}
             className="rounded-md border p-0"
-            locale={es}
+            locale={locale === 'es' ? es : enUS}
             modifiers={{
                 completed: completedDays,
             }}

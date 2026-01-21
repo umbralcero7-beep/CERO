@@ -4,7 +4,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, FileWarning, Timer, Bookmark, Save, Info, Crown, Sparkles } from 'lucide-react';
+import { ArrowLeft, FileWarning, Timer, Bookmark, Save, Info, Crown, Sparkles, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
@@ -29,6 +29,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { ReflectionDialog } from '@/components/library/reflection-dialog';
+import { useTranslation } from '@/components/providers/language-provider';
+import { ChatWithBookDialog } from '@/components/library/chat-with-book-dialog';
 
 
 const FIVE_MINUTES_IN_SECONDS = 300;
@@ -39,6 +41,7 @@ export default function BookPage() {
   const { toast } = useToast();
   const { isPro, isLoading: isUserLoading, user } = useUserProfile();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const [duration, setDuration] = useState(FIVE_MINUTES_IN_SECONDS);
   const [time, setTime] = useState(duration);
@@ -51,6 +54,9 @@ export default function BookPage() {
   const [isReflectionDialogOpen, setIsReflectionDialogOpen] = useState(false);
   const [completedSessionDuration, setCompletedSessionDuration] = useState(0);
   const [isSavingReflection, setIsSavingReflection] = useState(false);
+
+  // New state for chat dialog
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const item = libraryItems.find((i) => i.id === id);
   const image = PlaceHolderImages.find((img) => img.id === item?.imageId);
@@ -87,8 +93,8 @@ export default function BookPage() {
     } else if (time === 0 && isRunning) {
       setIsRunning(false);
       toast({
-        title: "¡Sesión de lectura completada!",
-        description: `Has completado una sesión de ${duration / 60} minutos. ¡Buen trabajo!`,
+        title: t('book.sessionComplete.toast.title'),
+        description: t('book.sessionComplete.toast.description', { duration: duration / 60 }),
       });
       
       setCompletedSessionDuration(duration);
@@ -99,7 +105,7 @@ export default function BookPage() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, time, toast, duration]);
+  }, [isRunning, time, toast, duration, t]);
 
   // Handle page exit attempt while timer is running
   useEffect(() => {
@@ -134,8 +140,8 @@ export default function BookPage() {
       setBookmarkedPage(pageNum);
       addCurrentBookToInProgress(); // Mark as in progress
       toast({
-        title: 'Página guardada',
-        description: `Has guardado la página ${pageNum} para este libro.`,
+        title: t('book.bookmark.toast.saved.title'),
+        description: t('book.bookmark.toast.saved.description', { page: pageNum }),
       });
     }
   };
@@ -149,13 +155,13 @@ export default function BookPage() {
         if (time === duration) { // Starting a new session
             if (bookmarkedPage) {
                 toast({
-                    title: "Sugerencia de Lectura",
-                    description: `La última vez te quedaste en la página ${bookmarkedPage}. ¿Por qué no continúas desde ahí?`,
+                    title: t('book.timer.toast.suggestion.title'),
+                    description: t('book.timer.toast.suggestion.description', { page: bookmarkedPage }),
                 });
             } else {
                  toast({
-                    title: "¡A leer!",
-                    description: "Que tengas una excelente sesión de lectura.",
+                    title: t('book.timer.toast.start.title'),
+                    description: t('book.timer.toast.start.description'),
                 });
             }
         }
@@ -166,8 +172,8 @@ export default function BookPage() {
       setIsRunning(false);
       setTime(duration);
       toast({
-        title: "Temporizador Reiniciado",
-        description: "La sesión ha sido reiniciada.",
+        title: t('book.timer.toast.reset.title'),
+        description: t('book.timer.toast.reset.description'),
       });
   };
 
@@ -177,8 +183,8 @@ export default function BookPage() {
       setShowExitAlert(false);
       toast({
         variant: "destructive",
-        title: "Sesión interrumpida",
-        description: "Tu sesión de enfoque ha sido cancelada.",
+        title: t('book.exitAlert.toast.stopped.title'),
+        description: t('book.exitAlert.toast.stopped.description'),
       });
   }
 
@@ -187,8 +193,8 @@ export default function BookPage() {
         if (!reflectionText.trim()) {
              toast({
                 variant: 'destructive',
-                title: 'La reflexión está vacía',
-                description: 'Por favor, escribe algo antes de guardar.',
+                title: t('reflectionDialog.toast.empty.title'),
+                description: t('reflectionDialog.toast.empty.description'),
             });
         }
         setIsReflectionDialogOpen(false);
@@ -208,16 +214,16 @@ export default function BookPage() {
             timestamp: serverTimestamp(),
         });
         toast({
-            title: 'Reflexión Guardada',
-            description: 'Tus pensamientos han sido guardados. ¡Sigue así!',
+            title: t('reflectionDialog.toast.saved.title'),
+            description: t('reflectionDialog.toast.saved.description'),
         });
         setIsReflectionDialogOpen(false);
     } catch (error) {
         console.error("Error saving reflection:", error);
         toast({
             variant: 'destructive',
-            title: 'Error al Guardar',
-            description: 'No se pudo guardar tu reflexión. Por favor, inténtalo de nuevo.',
+            title: t('reflectionDialog.toast.error.title'),
+            description: t('reflectionDialog.toast.error.description'),
         });
     } finally {
         setIsSavingReflection(false);
@@ -248,22 +254,27 @@ export default function BookPage() {
         bookTitle={item.title}
         loading={isSavingReflection}
       />
+      <ChatWithBookDialog
+        open={isChatOpen}
+        onOpenChange={setIsChatOpen}
+        bookTitle={item.title}
+      />
       <div className="space-y-8 h-full flex flex-col">
         <AlertDialog open={showExitAlert} onOpenChange={setShowExitAlert}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Interrumpir sesión de enfoque?</AlertDialogTitle>
+              <AlertDialogTitle>{t('book.exitAlert.title')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Si sales ahora, tu progreso en la sesión de enfoque se perderá. ¿Estás seguro de que quieres rendirte?
+                {t('book.exitAlert.description')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <Button variant="outline" onClick={() => setShowExitAlert(false)}>
-                Continuar Enfocado
+                {t('book.exitAlert.cancel')}
               </Button>
               <AlertDialogAction asChild>
                   <Button variant="destructive" onClick={handleConfirmStopAndExit}>
-                      Sí, interrumpir
+                      {t('book.exitAlert.confirm')}
                   </Button>
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -273,7 +284,7 @@ export default function BookPage() {
         <Button asChild variant="ghost" className="pl-0 self-start">
           <Link href="/library">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a la librería
+            {t('book.back')}
           </Link>
         </Button>
 
@@ -300,12 +311,24 @@ export default function BookPage() {
                 <p className="text-lg text-muted-foreground">{item.author}</p>
               </div>
               <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2"><Sparkles className="text-accent" /> {t('book.chat.title')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">{t('book.chat.description')}</p>
+                    <Button className="w-full" onClick={() => setIsChatOpen(true)}>
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        {t('book.chat.button')}
+                    </Button>
+                </CardContent>
+              </Card>
+              <Card>
                   <CardContent className="p-4 space-y-4">
                     <div className='space-y-3'>
-                      <h3 className="font-semibold flex items-center gap-2"><Timer className="w-5 h-5"/> Temporizador de Lectura</h3>
-                      <p className="text-sm text-muted-foreground flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 shrink-0"/>Inicia el temporizador para entrar en modo de lectura profunda. El tiempo correrá de forma continua durante tu sesión.</p>
+                      <h3 className="font-semibold flex items-center gap-2"><Timer className="w-5 h-5"/> {t('book.timer.title')}</h3>
+                      <p className="text-sm text-muted-foreground flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 shrink-0"/>{t('book.timer.description')}</p>
                       <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium">Duración:</p>
+                          <p className="text-sm font-medium">{t('book.timer.duration')}</p>
                           <Select
                               value={String(duration)}
                               onValueChange={(value) => setDuration(Number(value))}
@@ -326,32 +349,32 @@ export default function BookPage() {
                           <p className="text-4xl font-mono font-bold text-primary">{formatTime(time)}</p>
                           <div className="flex gap-2">
                             <Button onClick={handleToggleTimer} size="sm" disabled={time === 0}>
-                                  {isRunning ? 'Pausar' : time === duration ? 'Iniciar' : 'Continuar'}
+                                  {isRunning ? t('book.timer.pause') : time === duration ? t('book.timer.start') : t('book.timer.resume')}
                               </Button>
                               <Button onClick={handleResetTimer} variant="outline" size="sm">
-                                  Reiniciar
+                                  {t('book.timer.reset')}
                               </Button> 
                           </div>
                       </div>
                       <Progress value={progressValue} className="w-full h-2" />
                     </div>
                     <div className='space-y-2'>
-                      <h3 className="font-semibold flex items-center gap-2"><Bookmark className="w-5 h-5"/> Marcador de página</h3>
+                      <h3 className="font-semibold flex items-center gap-2"><Bookmark className="w-5 h-5"/> {t('book.bookmark.title')}</h3>
                       {bookmarkedPage !== null && (
                           <p className="text-sm text-muted-foreground">
-                              Última página guardada: <span className="font-bold text-primary">{bookmarkedPage}</span>
+                              {t('book.bookmark.lastPage')} <span className="font-bold text-primary">{bookmarkedPage}</span>
                           </p>
                       )}
                       <div className="flex items-center gap-2">
                           <Input 
                               type="number" 
-                              placeholder="Página" 
+                              placeholder={t('book.bookmark.placeholder')}
                               className="max-w-[100px]"
                               value={pageInput}
                               onChange={(e) => setPageInput(e.target.value)}
                               disabled={isRunning}
                           />
-                          <Button onClick={handleSaveBookmark} size="icon" aria-label="Guardar página" disabled={isRunning}>
+                          <Button onClick={handleSaveBookmark} size="icon" aria-label={t('book.bookmark.save')} disabled={isRunning}>
                               <Save className="h-4 w-4"/>
                           </Button>
                       </div>
@@ -374,9 +397,9 @@ export default function BookPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center bg-card rounded-lg p-8">
                     <FileWarning className="w-16 h-16 text-muted-foreground mb-4" />
-                    <h2 className="text-xl font-semibold text-foreground">Contenido no disponible</h2>
+                    <h2 className="text-xl font-semibold text-foreground">{t('book.pdfError.title')}</h2>
                     <p className="text-muted-foreground mt-2 max-w-md">
-                        Este libro todavía no tiene un archivo PDF asociado. Vuelve a intentarlo más tarde.
+                        {t('book.pdfError.description')}
                     </p>
                 </div>
               )
@@ -384,19 +407,19 @@ export default function BookPage() {
               <Card className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center bg-card rounded-lg p-8">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 justify-center text-accent">
-                    <Crown className="w-8 h-8"/> Contenido Pro
+                    <Crown className="w-8 h-8"/> {t('book.pro.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-lg text-foreground max-w-md">
-                    Este libro es parte de nuestra colección Pro.
+                    {t('book.pro.description')}
                   </p>
                   <p className="text-muted-foreground max-w-md">
-                    Actualiza tu plan para desbloquear este y cientos de otros recursos para potenciar tu bienestar.
+                    {t('book.pro.cta')}
                   </p>
                   <Button size="lg" asChild className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground">
                     <Link href="/pro">
-                      <Sparkles className="mr-2 h-5 w-5"/> Actualizar a Pro
+                      <Sparkles className="mr-2 h-5 w-5"/> {t('book.pro.button')}
                     </Link>
                   </Button>
                 </CardContent>

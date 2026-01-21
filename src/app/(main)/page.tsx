@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { getPersonalizedRecommendations, type PersonalizedRecommendationsOutput } from "@/ai/flows/personalized-recommendations";
-import { analyzeJournalEntry, type JournalAnalysisOutput } from "@/ai/flows/analyze-journal-entry";
 import { CeroBot } from "@/components/dashboard/cero-bot";
 import { MoodSelector } from "@/components/dashboard/mood-selector";
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
@@ -11,22 +10,22 @@ import { JournalDialog } from "@/components/journal/journal-dialog";
 import { useUser, useFirestore } from "@/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { HabitReminder } from "@/components/habits/habit-reminder";
+import { useTranslation } from "@/components/providers/language-provider";
 
 export default function DashboardPage() {
   const [mood, setMood] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<PersonalizedRecommendationsOutput | null>(null);
-  const [journalAnalysis, setJournalAnalysis] = useState<JournalAnalysisOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [isJournalOpen, setIsJournalOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const handleMoodSelect = async (selectedMood: string) => {
     if (loading) return;
     setMood(selectedMood);
     setRecommendations(null);
-    setJournalAnalysis(null);
     setIsJournalOpen(true); // Open journal dialog
   };
 
@@ -35,7 +34,6 @@ export default function DashboardPage() {
 
     setLoading(true);
     setRecommendations(null);
-    setJournalAnalysis(null);
     setIsJournalOpen(false);
 
     try {
@@ -49,27 +47,20 @@ export default function DashboardPage() {
       });
 
       toast({
-        title: "Registro de ánimo guardado",
-        description: "Tus notas y estado de ánimo se han guardado.",
+        title: t('dashboard.journalSave.toast.title'),
+        description: t('dashboard.journalSave.toast.description'),
       });
 
-      // Fetch recommendations and journal analysis in parallel
-      const [recResult, analysisResult] = await Promise.all([
-        getPersonalizedRecommendations({ mood }),
-        notes.trim() ? analyzeJournalEntry({ journalText: notes }) : Promise.resolve(null)
-      ]);
-
-      setRecommendations(recResult);
-      if (analysisResult) {
-        setJournalAnalysis(analysisResult);
-      }
+      // Fetch personalized recommendations
+      const result = await getPersonalizedRecommendations({ mood, journalText: notes });
+      setRecommendations(result);
 
     } catch (error) {
-      console.error("Error al obtener las recomendaciones o el análisis:", error);
+      console.error("Error al obtener las recomendaciones:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "No se pudieron procesar tus datos. Por favor, inténtalo de nuevo.",
+        title: t('dashboard.recommendationError.toast.title'),
+        description: t('dashboard.recommendationError.toast.description'),
       });
     } finally {
       setLoading(false);
@@ -77,42 +68,39 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-3xl">
+    <div className="flex flex-col items-center gap-8 text-center">
       <HabitReminder />
-      <div className="flex flex-col items-center gap-8 text-center">
-        <CeroBot />
-        <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline">¿Cómo te sientes hoy?</h2>
-            <p className="text-muted-foreground">Tu selección nos ayudará a darte un mejor acompañamiento.</p>
-        </div>
-        <MoodSelector
-          onMoodSelect={handleMoodSelect}
-          selectedMood={mood}
-          disabled={loading}
-        />
-
-        {mood && (
-          <JournalDialog
-            open={isJournalOpen}
-            onOpenChange={setIsJournalOpen}
-            onSave={handleJournalSave}
-            mood={mood}
-            loading={loading}
-          />
-        )}
-        
-        {(loading || recommendations || journalAnalysis) && (
-            <div className="w-full flex justify-center pt-8">
-                <RecommendationCard 
-                  loading={loading} 
-                  recommendations={recommendations} 
-                  journalAnalysis={journalAnalysis}
-                  mood={mood} 
-                />
-            </div>
-        )}
-
+      <CeroBot />
+      <div className="space-y-2">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline">{t('dashboard.title')}</h2>
+          <p className="text-muted-foreground">{t('dashboard.description')}</p>
       </div>
+      <MoodSelector
+        onMoodSelect={handleMoodSelect}
+        selectedMood={mood}
+        disabled={loading}
+      />
+
+      {mood && (
+        <JournalDialog
+          open={isJournalOpen}
+          onOpenChange={setIsJournalOpen}
+          onSave={handleJournalSave}
+          mood={mood}
+          loading={loading}
+        />
+      )}
+      
+      {(loading || recommendations) && (
+          <div className="w-full flex justify-center pt-8">
+              <RecommendationCard 
+                loading={loading} 
+                recommendations={recommendations} 
+                mood={mood} 
+              />
+          </div>
+      )}
+
     </div>
   );
 }

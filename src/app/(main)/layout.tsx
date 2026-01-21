@@ -2,9 +2,10 @@
 import type { ReactNode } from "react";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Header } from "@/components/layout/header";
 import { useUser } from '@/firebase';
 import { Skeleton } from "@/components/ui/skeleton";
+import { SidebarNav } from "@/components/layout/sidebar-nav";
+import { Header } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
@@ -20,16 +21,22 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   if (isUserLoading || !user) {
     return (
         <div className="flex h-screen w-screen">
-            <div className="hidden md:flex flex-col gap-4 p-4 border-r">
-                <Skeleton className="h-12 w-48" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
+            {/* Desktop Skeleton */}
+            <div className="hidden md:flex flex-col border-r w-64 p-4 gap-4">
+                <Skeleton className="h-8 w-32" />
+                <div className="flex-1 space-y-2 mt-4">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                </div>
             </div>
+            {/* Mobile/Main Skeleton */}
             <div className="flex-1 flex flex-col">
-                <header className="flex h-16 items-center justify-between border-b px-4 sm:px-6 lg:px-8">
-                    <Skeleton className="h-8 w-40" />
+                <header className="flex h-16 items-center justify-between border-b px-4 sm:px-6">
+                    <div className="md:hidden">
+                        <Skeleton className="h-8 w-24" />
+                    </div>
+                    <div className="flex-1" />
                     <Skeleton className="h-10 w-10 rounded-full" />
                 </header>
                 <main className="p-4 sm:p-6 lg:p-8">
@@ -41,9 +48,19 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow p-4 sm:p-6 lg:p-8 pb-24">{children}</main>
+    <div className="flex min-h-screen w-full bg-background">
+      {/* Desktop Sidebar */}
+      <SidebarNav />
+      
+      {/* Main Content */}
+      <div className="flex flex-col flex-1">
+        <Header />
+        <main className="flex-grow p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
+            {children}
+        </main>
+      </div>
+
+      {/* Mobile Bottom Nav */}
       <BottomNav />
     </div>
   );

@@ -1,61 +1,44 @@
 'use client';
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ListTodo, BookHeart, BarChart3, Menu, X, BrainCircuit, BookText } from 'lucide-react';
+import { Home, ListTodo, BookHeart, BrainCircuit, BookText } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-
-const navItems = [
-  { href: '/', label: 'Dashboard', icon: Home },
-  { href: '/journal', label: 'Diario', icon: BookText },
-  { href: '/habits', label: 'Hábitos', icon: ListTodo },
-  { href: '/library', label: 'Librería', icon: BookHeart },
-  { href: '/progress', label: 'Progreso', icon: BarChart3 },
-  { href: '/calm', label: 'Calma', icon: BrainCircuit },
-];
+import { useTranslation } from '../providers/language-provider';
 
 export function BottomNav() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
+
+  const navItems = [
+    { href: '/', label: t('nav.dashboard'), icon: Home },
+    { href: '/habits', label: t('nav.habits'), icon: ListTodo },
+    { href: '/calm', label: t('nav.calm'), icon: BrainCircuit },
+    { href: '/library', label: t('nav.library'), icon: BookHeart },
+    { href: '/journal', label: t('nav.journal'), icon: BookText },
+  ];
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
-      <div className="relative flex flex-col items-center gap-2">
-        {/* Navigation buttons that appear when open */}
-        {isOpen && (
-          <nav className="flex flex-col gap-2 animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
-            {navItems.map((item) => (
-              <Link
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm md:hidden">
+      <div className="flex h-16 items-center justify-around">
+        {navItems.map((item) => {
+            const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+            return (
+            <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsOpen(false)}
                 className={cn(
-                  'flex h-12 w-12 items-center justify-center rounded-full transition-all',
-                  'text-foreground bg-background/80 border shadow-lg backdrop-blur-sm',
-                  'hover:bg-primary/90 hover:text-primary-foreground',
-                  {
-                    'bg-primary text-primary-foreground': pathname === item.href,
-                  }
+                'flex flex-col items-center justify-center gap-1 p-2 rounded-md transition-colors text-muted-foreground hover:text-primary w-16 text-center',
+                {
+                    'text-primary': isActive,
+                }
                 )}
-              >
+            >
                 <item.icon className="h-6 w-6" />
-                <span className="sr-only">{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-        )}
-
-        {/* Main toggle button */}
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className="h-14 w-14 rounded-full shadow-xl"
-          aria-expanded={isOpen}
-        >
-          {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
-          <span className="sr-only">{isOpen ? 'Cerrar menú' : 'Abrir menú'}</span>
-        </Button>
+                <span className="text-xs font-medium truncate">{item.label}</span>
+            </Link>
+            )
+        })}
       </div>
-    </div>
+    </nav>
   );
 }

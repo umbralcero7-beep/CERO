@@ -17,12 +17,14 @@ import { useState, useEffect } from "react";
 import { useFirestore, useUser } from "@/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "../providers/language-provider";
 
 export function EditHabitDialog({ habit }: { habit: { id: string, name: string, description: string } }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(habit.name);
   const [description, setDescription] = useState(habit.description);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const { user } = useUser();
   const firestore = useFirestore();
@@ -40,7 +42,7 @@ export function EditHabitDialog({ habit }: { habit: { id: string, name: string, 
       toast({
         variant: "destructive",
         title: "Error",
-        description: "El título del hábito es obligatorio.",
+        description: t('addHabitDialog.toast.error.title'),
       });
       return;
     }
@@ -54,8 +56,8 @@ export function EditHabitDialog({ habit }: { habit: { id: string, name: string, 
       });
 
       toast({
-        title: "Hábito actualizado",
-        description: `"${title}" se ha actualizado.`,
+        title: t('editHabitDialog.toast.updated.title'),
+        description: t('editHabitDialog.toast.updated.description', { title }),
       });
       
       setOpen(false);
@@ -64,7 +66,7 @@ export function EditHabitDialog({ habit }: { habit: { id: string, name: string, 
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo actualizar el hábito. Inténtalo de nuevo.",
+        description: t('editHabitDialog.toast.error.update'),
       });
     } finally {
       setLoading(false);
@@ -80,19 +82,19 @@ export function EditHabitDialog({ habit }: { habit: { id: string, name: string, 
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Editar hábito</DialogTitle>
+          <DialogTitle>{t('editHabitDialog.title')}</DialogTitle>
           <DialogDescription>
-            Modifica los detalles de tu hábito.
+            {t('editHabitDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title" className="text-right">
-              Título
+              {t('addHabitDialog.label.title')}
             </Label>
             <Input 
               id="title" 
-              placeholder="Ej: Meditar 10 minutos" 
+              placeholder={t('addHabitDialog.placeholder.title')}
               className="col-span-3"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -101,11 +103,11 @@ export function EditHabitDialog({ habit }: { habit: { id: string, name: string, 
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
-              Descripción
+              {t('addHabitDialog.label.description')}
             </Label>
             <Input 
               id="description" 
-              placeholder="Ej: Usar la app de Headspace" 
+              placeholder={t('addHabitDialog.placeholder.description')}
               className="col-span-3"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -115,7 +117,7 @@ export function EditHabitDialog({ habit }: { habit: { id: string, name: string, 
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleEditHabit} disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar Cambios'}
+            {loading ? t('addHabitDialog.saving') : t('editHabitDialog.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

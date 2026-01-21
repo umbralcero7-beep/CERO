@@ -11,6 +11,7 @@ import { collection, query } from 'firebase/firestore';
 import { useFirestore } from '@/firebase/provider';
 import { Skeleton } from '../ui/skeleton';
 import { useMemo } from 'react';
+import { useTranslation } from '../providers/language-provider';
 
 const chartConfig = {
   'Meditación': { label: 'Meditación', color: 'hsl(var(--chart-1))' },
@@ -23,6 +24,7 @@ const chartConfig = {
 export function HabitChart() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const habitsQuery = useMemoFirebase(
     () =>
@@ -73,8 +75,7 @@ export function HabitChart() {
 
   if (!habits || habits.length === 0 || activeChartKeys.length === 0) {
     return (
-        <div className="flex h-[300px] w-full items-center justify-center text-center text-muted-foreground">
-            <p>No hay datos de hábitos para mostrar. <br/> Empieza a gestionar tus hábitos en la sección de Hábitos.</p>
+        <div className="flex h-[300px] w-full items-center justify-center text-center text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('habitChart.empty') }}>
         </div>
     );
   }

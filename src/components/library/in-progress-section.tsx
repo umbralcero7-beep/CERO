@@ -8,9 +8,11 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from '../providers/language-provider';
 
 export function InProgressSection() {
   const [inProgressItems, setInProgressItems] = useState<LibraryItem[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     try {
@@ -36,10 +38,10 @@ export function InProgressSection() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl font-headline">
-          Continuar Leyendo
+          {t('library.inProgress')}
         </h3>
         <Link href="#all-books" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
-          Ver todo <ArrowRight className="h-4 w-4" />
+          {t('library.viewAll')} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
       <Carousel opts={{ align: "start", loop: false }}>

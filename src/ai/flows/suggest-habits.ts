@@ -56,11 +56,28 @@ const suggestHabitsFlow = ai.defineFlow(
     outputSchema: HabitSuggestionOutputSchema,
   },
   async (input) => {
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY environment variable not set.');
+      return [
+        {
+          name: 'Error de Configuración',
+          description: 'La clave de API de IA no está definida. Añádela a tu archivo .env.',
+        },
+      ];
+    }
     try {
       const { output } = await prompt(input);
       return output || [];
     } catch (e) {
         console.error('AI habit suggestion flow failed, providing fallback:', e);
+        if (e instanceof Error && (e.message.includes('API key') || e.message.includes('authentication'))) {
+          return [
+            {
+              name: 'Error de Autenticación',
+              description: 'La clave de API para la IA no es válida o ha expirado.',
+            },
+          ];
+        }
         return [
           {
             name: 'Meditación de 5 Minutos',

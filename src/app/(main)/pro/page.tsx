@@ -2,16 +2,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Crown, Sparkles } from "lucide-react";
-
-const proFeatures = [
-    "Acceso ilimitado a toda la Librería Emocional.",
-    "Análisis más profundos de tus entradas de diario.",
-    "Estadísticas y logros exclusivos.",
-    "Nuevas funciones de personalización.",
-    "Soporte prioritario."
-]
+import { useTranslation } from "@/components/providers/language-provider";
 
 export default function ProPage() {
+    const { t } = useTranslation();
+
+    const proFeatures = [
+        t('pro.feature1'),
+        t('pro.feature2'),
+        t('pro.feature3'),
+        t('pro.feature4'),
+        t('pro.feature5'),
+    ]
+
     return (
         <div className="flex flex-col items-center justify-center text-center space-y-8">
             <Card className="w-full max-w-2xl">
@@ -20,10 +23,10 @@ export default function ProPage() {
                         <Crown className="w-10 h-10 text-accent" />
                     </div>
                     <CardTitle className="text-3xl font-bold font-headline flex items-center gap-2">
-                        Desbloquea Umbral Pro
+                        {t('pro.title')}
                     </CardTitle>
                     <CardDescription className="max-w-md pt-2">
-                        Lleva tu viaje de bienestar al siguiente nivel con acceso a todas las herramientas y contenido exclusivo.
+                        {t('pro.description')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 text-left">
@@ -36,10 +39,10 @@ export default function ProPage() {
                         ))}
                     </ul>
                     <Button size="lg" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg" disabled>
-                        <Sparkles className="mr-2 h-5 w-5" /> Próximamente
+                        <Sparkles className="mr-2 h-5 w-5" /> {t('pro.comingSoon')}
                     </Button>
                     <p className="text-xs text-center text-muted-foreground pt-2">
-                        La compra de la suscripción se gestionará a través de la Play Store una vez que la aplicación esté publicada.
+                        {t('pro.disclaimer')}
                     </p>
                 </CardContent>
             </Card>

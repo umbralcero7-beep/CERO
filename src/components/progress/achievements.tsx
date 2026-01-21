@@ -6,6 +6,7 @@ import { useFirestore } from "@/firebase/provider";
 import { Flame, BookMarked, BrainCircuit, Smile, Award } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { useTranslation } from "../providers/language-provider";
 
 const iconMap: { [key: string]: React.ElementType } = {
   Flame,
@@ -15,20 +16,20 @@ const iconMap: { [key: string]: React.ElementType } = {
   Award,
 };
 
-const allAchievements = [
-    { id: 'mood_1', title: 'Primer Paso', description: 'Registraste tu primer estado de ánimo.', icon: 'Smile', type: 'moods', requirement: 1 },
-    { id: 'mood_10', title: 'Explorador Emocional', description: 'Registraste 10 estados de ánimo.', icon: 'Smile', requirement: 10, type: 'moods' },
-    { id: 'habit_1', title: 'Nuevo Hábito', description: 'Creaste tu primer hábito.', icon: 'Flame', type: 'habits_created', requirement: 1 },
-    { id: 'habit_log_1', title: '¡En Marcha!', description: 'Completaste un hábito por primera vez.', icon: 'Award', type: 'habit_logs', requirement: 1 },
-    { id: 'habit_log_10', title: 'Constancia', description: 'Completaste hábitos 10 veces.', icon: 'Award', type: 'habit_logs', requirement: 10 },
-];
-
-
 export function Achievements() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
   const [habitLogCount, setHabitLogCount] = useState(0);
   const [habitLogsLoading, setHabitLogsLoading] = useState(true);
+
+  const allAchievements = useMemo(() => [
+    { id: 'mood_1', title: t('achievements.mood_1.title'), description: t('achievements.mood_1.description'), icon: 'Smile', type: 'moods', requirement: 1 },
+    { id: 'mood_10', title: t('achievements.mood_10.title'), description: t('achievements.mood_10.description'), icon: 'Smile', requirement: 10, type: 'moods' },
+    { id: 'habit_1', title: t('achievements.habit_1.title'), description: t('achievements.habit_1.description'), icon: 'Flame', type: 'habits_created', requirement: 1 },
+    { id: 'habit_log_1', title: t('achievements.habit_log_1.title'), description: t('achievements.habit_log_1.description'), icon: 'Award', type: 'habit_logs', requirement: 1 },
+    { id: 'habit_log_10', title: t('achievements.habit_log_10.title'), description: t('achievements.habit_log_10.description'), icon: 'Award', type: 'habit_logs', requirement: 10 },
+  ], [t]);
 
   const moodLogsQuery = useMemoFirebase(() => user ? query(collection(firestore, 'users', user.uid, 'moodLogs')) : null, [firestore, user]);
   const habitsQuery = useMemoFirebase(() => user ? query(collection(firestore, 'users', user.uid, 'habits')) : null, [firestore, user]);
@@ -75,7 +76,7 @@ export function Achievements() {
 
     return unlocked;
 
-  }, [moodLogs, habits, habitLogCount]);
+  }, [moodLogs, habits, habitLogCount, allAchievements]);
 
   const isLoading = moodLogsLoading || habitsLoading || habitLogsLoading;
 
@@ -84,8 +85,8 @@ export function Achievements() {
       return (
          <Card className="md:col-span-2">
             <CardHeader>
-                <CardTitle>Centro de Logros</CardTitle>
-                <CardDescription>Tus insignias desbloqueadas, rachas y nivel.</CardDescription>
+                <CardTitle>{t('achievements.title')}</CardTitle>
+                <CardDescription>{t('achievements.description')}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Skeleton className="h-20 w-full" />
@@ -99,12 +100,12 @@ export function Achievements() {
     return (
          <Card className="md:col-span-2">
             <CardHeader>
-                <CardTitle>Centro de Logros</CardTitle>
-                <CardDescription>Tus insignias desbloqueadas, rachas y nivel.</CardDescription>
+                <CardTitle>{t('achievements.title')}</CardTitle>
+                <CardDescription>{t('achievements.description')}</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="flex items-center justify-center h-24 text-muted-foreground">
-                    <p>¡Sigue así! Tus logros aparecerán aquí a medida que progreses.</p>
+                    <p>{t('achievements.empty')}</p>
                 </div>
             </CardContent>
         </Card>
@@ -115,8 +116,8 @@ export function Achievements() {
   return (
     <Card className="md:col-span-2">
       <CardHeader>
-        <CardTitle>Centro de Logros</CardTitle>
-        <CardDescription>Tus insignias desbloqueadas, rachas y nivel.</CardDescription>
+        <CardTitle>{t('achievements.title')}</CardTitle>
+        <CardDescription>{t('achievements.description')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {unlockedAchievements.map((ach) => {

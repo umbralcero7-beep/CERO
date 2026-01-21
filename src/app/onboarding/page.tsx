@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/components/providers/language-provider';
 
 const onboardingSchema = z.object({
   goal: z.string({ required_error: 'Por favor, selecciona un objetivo.' }),
@@ -26,23 +27,24 @@ const onboardingSchema = z.object({
 
 type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
-const goals = [
-  { id: 'stress', label: 'Reducir el estrés y la ansiedad' },
-  { id: 'focus', label: 'Mejorar el enfoque y la productividad' },
-  { id: 'self-esteem', label: 'Aumentar mi autoestima' },
-  { id: 'relationships', label: 'Mejorar mis relaciones personales' },
-  { id: 'emotions', label: 'Entender y gestionar mejor mis emociones' },
-];
-
 export default function OnboardingPage() {
   const router = useRouter();
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [suggestedHabits, setSuggestedHabits] = useState<SuggestedHabit[]>([]);
   const [selectedHabits, setSelectedHabits] = useState<Set<string>>(new Set());
+
+  const goals = [
+    { id: 'stress', label: t('onboarding.goal.stress') },
+    { id: 'focus', label: t('onboarding.goal.focus') },
+    { id: 'self-esteem', label: t('onboarding.goal.selfEsteem') },
+    { id: 'relationships', label: t('onboarding.goal.relationships') },
+    { id: 'emotions', label: t('onboarding.goal.emotions') },
+  ];
 
   const form = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingSchema),
@@ -62,8 +64,8 @@ export default function OnboardingPage() {
       console.error('Error suggesting habits:', error);
       toast({
         variant: 'destructive',
-        title: 'Error de IA',
-        description: 'No se pudieron generar las sugerencias. Inténtalo de nuevo.',
+        title: t('onboarding.aiError.title'),
+        description: t('onboarding.aiError.description'),
       });
     } finally {
       setLoading(false);
@@ -91,8 +93,8 @@ export default function OnboardingPage() {
         });
       }
       toast({
-        title: '¡Todo listo!',
-        description: `Se han añadido ${habitsToAdd.length} hábitos a tu perfil.`,
+        title: t('onboarding.finish.toast.title'),
+        description: t('onboarding.finish.toast.description', { count: habitsToAdd.length }),
       });
       router.push('/');
     } catch (error) {
@@ -125,8 +127,8 @@ export default function OnboardingPage() {
         {step === 1 && (
           <>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold flex items-center gap-2"><Wand2 /> ¡Bienvenido a Umbral!</CardTitle>
-              <CardDescription>Responde a dos preguntas rápidas para que Cero, tu compañero de IA, pueda sugerirte algunos hábitos iniciales.</CardDescription>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2"><Wand2 /> {t('onboarding.welcome')}</CardTitle>
+              <CardDescription>{t('onboarding.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -136,7 +138,7 @@ export default function OnboardingPage() {
                     name="goal"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
-                        <FormLabel className="text-base font-semibold">1. ¿Qué área de tu vida te gustaría mejorar principalmente?</FormLabel>
+                        <FormLabel className="text-base font-semibold">{t('onboarding.goal.label')}</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -162,10 +164,10 @@ export default function OnboardingPage() {
                     name="challenge"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold">2. ¿Cuál es tu mayor desafío o lo que más te preocupa actualmente?</FormLabel>
+                        <FormLabel className="text-base font-semibold">{t('onboarding.challenge.label')}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Ej: Siento que no tengo tiempo para mí, me cuesta concentrarme en el trabajo, etc."
+                            placeholder={t('onboarding.challenge.placeholder')}
                             {...field}
                           />
                         </FormControl>
@@ -175,7 +177,7 @@ export default function OnboardingPage() {
                   />
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Generar sugerencias con IA
+                    {t('onboarding.submitButton')}
                   </Button>
                 </form>
               </Form>
@@ -185,8 +187,8 @@ export default function OnboardingPage() {
         {step === 2 && (
           <>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold flex items-center gap-2"><Sparkles /> Hábitos sugeridos por la IA</CardTitle>
-              <CardDescription>Estos son algunos hábitos que Cero cree que podrían ayudarte. Selecciona los que quieras empezar a seguir.</CardDescription>
+              <CardTitle className="text-2xl font-bold flex items-center gap-2"><Sparkles /> {t('onboarding.step2.title')}</CardTitle>
+              <CardDescription>{t('onboarding.step2.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
@@ -210,7 +212,7 @@ export default function OnboardingPage() {
                 ))}
               </div>
               <Button onClick={handleFinishOnboarding} className="w-full" disabled={loading || selectedHabits.size === 0}>
-                {loading ? 'Guardando...' : `Añadir ${selectedHabits.size} hábitos y empezar`}
+                {loading ? t('onboarding.finishButton.loading') : t('onboarding.finishButton', { count: selectedHabits.size })}
               </Button>
             </CardContent>
           </>

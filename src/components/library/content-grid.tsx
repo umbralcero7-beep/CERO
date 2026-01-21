@@ -5,12 +5,14 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Badge } from "@/components/ui/badge";
 import { Mic, FileText, Crown } from "lucide-react";
 import type { LibraryItem } from "@/lib/data";
+import { useTranslation } from "../providers/language-provider";
 
 interface ContentGridProps {
   items: LibraryItem[];
 }
 
 export function ContentGrid({ items }: ContentGridProps) {
+  const { t } = useTranslation();
   const getImage = (imageId: string) => {
     return PlaceHolderImages.find(img => img.id === imageId);
   }
@@ -18,7 +20,7 @@ export function ContentGrid({ items }: ContentGridProps) {
   if (items.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <p>No se encontraron libros que coincidan con tu búsqueda.</p>
+        <p>{t('library.emptySearch')}</p>
       </div>
     )
   }
@@ -46,12 +48,12 @@ export function ContentGrid({ items }: ContentGridProps) {
                     {item.isPremium && (
                       <Badge className="bg-accent text-accent-foreground border-accent">
                           <Crown className="h-3 w-3 mr-1" />
-                          Pro
+                          {t('library.proBadge')}
                       </Badge>
                     )}
                     <Badge variant="secondary">
                       {item.type === 'Audio' ? <Mic className="h-3 w-3 mr-1" /> : <FileText className="h-3 w-3 mr-1" />}
-                      {item.type === 'Texto' ? 'Leer' : item.type}
+                      {item.type === 'Texto' ? t('library.read') : item.type}
                     </Badge>
                   </div>
                 </div>

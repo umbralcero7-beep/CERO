@@ -1,18 +1,21 @@
+'use client';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { HabitList } from "@/components/habits/habit-list";
 import { AddHabitDialog } from "@/components/habits/add-habit-dialog";
 import { KeyHabits } from "@/components/habits/key-habits";
+import { useTranslation } from "@/components/providers/language-provider";
 
 export default function HabitsPage() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline">
-            Gestión de Hábitos
+            {t('habits.title')}
           </h2>
           <p className="mt-2 text-muted-foreground">
-            Construye y personaliza tus rutinas para una vida más consciente.
+            {t('habits.description')}
           </p>
         </div>
         <AddHabitDialog />
@@ -22,8 +25,8 @@ export default function HabitsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mis Hábitos</CardTitle>
-          <CardDescription>Marca los hábitos completados y gestiona tu lista personal.</CardDescription>
+          <CardTitle>{t('habits.myHabits.title')}</CardTitle>
+          <CardDescription>{t('habits.myHabits.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <HabitList />

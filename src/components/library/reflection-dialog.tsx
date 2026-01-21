@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "../providers/language-provider";
 
 interface ReflectionDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface ReflectionDialogProps {
 
 export function ReflectionDialog({ open, onOpenChange, onSave, bookTitle, loading }: ReflectionDialogProps) {
   const [reflection, setReflection] = useState("");
+  const { t } = useTranslation();
 
   const handleSave = () => {
     onSave(reflection);
@@ -42,14 +44,14 @@ export function ReflectionDialog({ open, onOpenChange, onSave, bookTitle, loadin
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reflexión sobre "{bookTitle}"</DialogTitle>
+          <DialogTitle>{t('reflectionDialog.title', { title: bookTitle })}</DialogTitle>
           <DialogDescription>
-            ¡Sesión completada! Tómate un momento para anotar tus pensamientos sobre lo que acabas de leer.
+            {t('reflectionDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <Textarea
-            placeholder="¿Qué ideas resonaron contigo? ¿Qué aprendiste? ¿Cómo te sientes?"
+            placeholder={t('reflectionDialog.placeholder')}
             value={reflection}
             onChange={(e) => setReflection(e.target.value)}
             rows={6}
@@ -57,10 +59,10 @@ export function ReflectionDialog({ open, onOpenChange, onSave, bookTitle, loadin
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={loading}>
-            Omitir
+            {t('reflectionDialog.skip')}
           </Button>
           <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : "Guardar Reflexión"}
+            {loading ? t('reflectionDialog.saving') : t('reflectionDialog.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

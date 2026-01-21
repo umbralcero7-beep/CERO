@@ -9,6 +9,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { useFirestore } from '@/firebase/provider';
 import { Skeleton } from '../ui/skeleton';
 import { useMemo } from 'react';
+import { useTranslation } from '../providers/language-provider';
 
 const chartConfig = {
   value: {
@@ -24,11 +25,18 @@ const moodToValue: { [key: string]: number } = {
   Cansado: 2,
   Estresado: 1,
   Triste: 1,
+  Happy: 5,
+  Calm: 4,
+  Thoughtful: 3,
+  Tired: 2,
+  Stressed: 1,
+  Sad: 1,
 };
 
 export function MoodChart() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   const moodLogsQuery = useMemoFirebase(
     () =>
@@ -58,8 +66,7 @@ export function MoodChart() {
 
   if (!moodHistory || moodHistory.length === 0) {
     return (
-        <div className="flex h-[300px] w-full items-center justify-center text-center text-muted-foreground">
-            <p>No hay datos de ánimo para mostrar todavía. <br/> Empieza a registrar tu estado de ánimo en el Dashboard.</p>
+        <div className="flex h-[300px] w-full items-center justify-center text-center text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('moodChart.empty') }}>
         </div>
     );
   }

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "../providers/language-provider";
 
 interface JournalDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface JournalDialogProps {
 
 export function JournalDialog({ open, onOpenChange, onSave, mood, loading }: JournalDialogProps) {
   const [notes, setNotes] = useState("");
+  const { t } = useTranslation();
 
   const handleSave = () => {
     onSave(notes);
@@ -36,14 +38,14 @@ export function JournalDialog({ open, onOpenChange, onSave, mood, loading }: Jou
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Diario Emocional: {mood}</DialogTitle>
+          <DialogTitle>{t('journalDialog.title', { mood: mood })}</DialogTitle>
           <DialogDescription>
-            Añade una nota para explorar más a fondo cómo te sientes. ¿Qué ha pasado? ¿Qué pensamientos tienes?
+            {t('journalDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <Textarea
-            placeholder="Escribe tus pensamientos aquí..."
+            placeholder={t('journalDialog.placeholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={6}
@@ -51,10 +53,10 @@ export function JournalDialog({ open, onOpenChange, onSave, mood, loading }: Jou
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={loading}>
-            Cancelar
+            {t('journalDialog.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : "Guardar y Continuar"}
+            {loading ? t('journalDialog.saving') : t('journalDialog.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

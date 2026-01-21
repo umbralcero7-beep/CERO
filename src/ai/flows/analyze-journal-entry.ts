@@ -40,11 +40,11 @@ const prompt = ai.definePrompt({
   name: 'journalAnalysisPrompt',
   input: {schema: JournalAnalysisInputSchema},
   output: {schema: JournalAnalysisOutputSchema},
-  prompt: `Eres un analista de IA perspicaz. Analiza la siguiente entrada de diario.
+  prompt: `Eres un analista de IA perspicaz y empático. Tu tarea es analizar la siguiente entrada de diario.
 
-Tu tarea es:
-1. Escribir un resumen breve (2-3 frases) que capture la esencia de los pensamientos y sentimientos del usuario de una manera validante y sin prejuicios.
-2. Identificar de 1 a 3 de las emociones o sentimientos más destacados en el texto.
+Instrucciones:
+1. Escribe un resumen breve (2-3 frases) que capture la esencia de los pensamientos y sentimientos del usuario de una manera validante, sin prejuicios y que ofrezca una perspectiva constructiva.
+2. Identifica de 1 a 3 de las emociones o sentimientos más destacados en el texto. Sé específico.
 
 Entrada de diario:
 {{{journalText}}}`,
@@ -57,11 +57,25 @@ const journalAnalysisFlow = ai.defineFlow(
     outputSchema: JournalAnalysisOutputSchema,
   },
   async input => {
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY environment variable not set.');
+      return {
+        summary: 'Error de Configuración: La clave de API para el servicio de IA no está definida. Por favor, añádela a tu archivo .env para habilitar esta función.',
+        keyEmotions: [],
+      };
+    }
+
     try {
       const {output} = await prompt(input);
       return output!;
     } catch (e) {
       console.error('AI journal analysis flow failed, providing fallback:', e);
+      if (e instanceof Error && (e.message.includes('API key') || e.message.includes('authentication'))) {
+        return {
+          summary: 'Error de autenticación: La clave de API proporcionada no es válida o ha expirado.',
+          keyEmotions: [],
+        };
+      }
       return {
           summary: 'Gracias por tomarte el tiempo de escribir. Reflexionar sobre tus pensamientos es un paso valioso.',
           keyEmotions: [],

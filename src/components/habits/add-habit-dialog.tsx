@@ -16,12 +16,14 @@ import { useState } from "react";
 import { useFirestore, useUser } from "@/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "../providers/language-provider";
 
 export function AddHabitDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const { user } = useUser();
   const firestore = useFirestore();
@@ -32,7 +34,7 @@ export function AddHabitDialog() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "El título del hábito es obligatorio.",
+        description: t('addHabitDialog.toast.error.title'),
       });
       return;
     }
@@ -50,8 +52,8 @@ export function AddHabitDialog() {
       });
 
       toast({
-        title: "Hábito añadido",
-        description: `"${title}" se ha añadido a tu lista.`,
+        title: t('addHabitDialog.toast.added.title'),
+        description: t('addHabitDialog.toast.added.description', { title }),
       });
       
       setTitle("");
@@ -62,7 +64,7 @@ export function AddHabitDialog() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo añadir el hábito. Inténtalo de nuevo.",
+        description: t('addHabitDialog.toast.error.add'),
       });
     } finally {
       setLoading(false);
@@ -73,24 +75,24 @@ export function AddHabitDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 h-4 w-4" /> Añadir Hábito
+          <Plus className="mr-2 h-4 w-4" /> {t('habits.addHabit')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Crear nuevo hábito</DialogTitle>
+          <DialogTitle>{t('addHabitDialog.title')}</DialogTitle>
           <DialogDescription>
-            Añade un nuevo hábito a tu lista. Puedes activarlo cuando quieras.
+            {t('addHabitDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title" className="text-right">
-              Título
+              {t('addHabitDialog.label.title')}
             </Label>
             <Input 
               id="title" 
-              placeholder="Ej: Meditar 10 minutos" 
+              placeholder={t('addHabitDialog.placeholder.title')}
               className="col-span-3"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -99,11 +101,11 @@ export function AddHabitDialog() {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
-              Descripción
+              {t('addHabitDialog.label.description')}
             </Label>
             <Input 
               id="description" 
-              placeholder="Ej: Usar la app de Headspace" 
+              placeholder={t('addHabitDialog.placeholder.description')}
               className="col-span-3"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -113,7 +115,7 @@ export function AddHabitDialog() {
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleAddHabit} disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar'}
+            {loading ? t('addHabitDialog.saving') : t('addHabitDialog.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

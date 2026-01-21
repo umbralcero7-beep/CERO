@@ -6,38 +6,41 @@ import {
 } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lightbulb } from "lucide-react"
-
-const keyHabits = [
-  {
-    emoji: "💧",
-    title: "Hidratarse al despertar",
-    why: "Durante la noche el cuerpo pierde líquidos; beber agua ayuda a reactivar el metabolismo y mejorar la concentración.",
-    action: "Tomar un vaso grande de agua antes del café o desayuno.",
-    benefit: "Mayor energía y mejor digestión.",
-  },
-  {
-    emoji: "🏃‍♂️",
-    title: "Movimiento físico (ejercicio ligero o estiramientos)",
-    why: "El cuerpo necesita activarse después de horas de reposo. El movimiento mejora la circulación y oxigena el cerebro.",
-    action: "Estiramientos de 5–10 minutos, yoga suave o una caminata corta.",
-    benefit: "Reducción de la rigidez muscular y aumento de la vitalidad.",
-  },
-  {
-    emoji: "🧘‍♀️",
-    title: "Calma mental (meditación o respiración consciente)",
-    why: "La mente suele estar dispersa al despertar; la meditación ayuda a centrar pensamientos y reducir el estrés.",
-    action: "Dedicar 5 minutos a respirar profundamente o practicar mindfulness.",
-    benefit: "Mayor claridad mental y mejor disposición emocional para el día.",
-  },
-]
+import { useTranslation } from "../providers/language-provider"
 
 export function KeyHabits() {
+  const { t } = useTranslation();
+
+  const keyHabits = [
+    {
+      emoji: "💧",
+      title: t('keyHabits.hydrate.title'),
+      why: t('keyHabits.hydrate.why'),
+      action: t('keyHabits.hydrate.action'),
+      benefit: t('keyHabits.hydrate.benefit'),
+    },
+    {
+      emoji: "🏃‍♂️",
+      title: t('keyHabits.move.title'),
+      why: t('keyHabits.move.why'),
+      action: t('keyHabits.move.action'),
+      benefit: t('keyHabits.move.benefit'),
+    },
+    {
+      emoji: "🧘‍♀️",
+      title: t('keyHabits.calm.title'),
+      why: t('keyHabits.calm.why'),
+      action: t('keyHabits.calm.action'),
+      benefit: t('keyHabits.calm.benefit'),
+    },
+  ]
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
             <Lightbulb className="text-accent" />
-            Sugerencias: Hábitos Clave para Iniciar el Día
+            {t('keyHabits.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -52,15 +55,15 @@ export function KeyHabits() {
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pl-12">
                 <div>
-                  <h4 className="font-semibold">Por qué es importante:</h4>
+                  <h4 className="font-semibold">{t('keyHabits.whyLabel')}</h4>
                   <p className="text-muted-foreground">{habit.why}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold">Acción práctica:</h4>
+                  <h4 className="font-semibold">{t('keyHabits.actionLabel')}</h4>
                   <p className="text-muted-foreground">{habit.action}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold">Beneficio inmediato:</h4>
+                  <h4 className="font-semibold">{t('keyHabits.benefitLabel')}</h4>
                   <p className="text-muted-foreground">{habit.benefit}</p>
                 </div>
               </AccordionContent>

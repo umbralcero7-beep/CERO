@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FirebaseError } from "firebase/app";
 import { doc, setDoc } from "firebase/firestore";
 import { useFirestore } from "@/firebase";
+import { useTranslation } from "../providers/language-provider";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,7 @@ export function AuthForm() {
   const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleAuth = async (isSignUp: boolean) => {
     setLoading(true);
@@ -55,29 +57,29 @@ export function AuthForm() {
         router.push("/");
       }
     } catch (error) {
-      let errorMessage = "Ocurrió un error inesperado.";
+      let errorMessage = t('auth.error.generic');
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case "auth/email-already-in-use":
-            errorMessage = "Este correo electrónico ya está en uso.";
+            errorMessage = t('auth.error.emailInUse');
             break;
           case "auth/user-not-found":
           case "auth/invalid-credential":
-            errorMessage = "Correo electrónico o contraseña incorrectos.";
+            errorMessage = t('auth.error.invalidCredentials');
             break;
           case "auth/invalid-email":
-            errorMessage = "El formato del correo electrónico no es válido.";
+            errorMessage = t('auth.error.invalidEmail');
             break;
           case "auth/weak-password":
-            errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+            errorMessage = t('auth.error.weakPassword');
             break;
           default:
-            errorMessage = "Error de autenticación: " + error.message;
+            errorMessage = t('auth.error.generic');
         }
       }
       toast({
         variant: "destructive",
-        title: "Error de autenticación",
+        title: t('auth.error.title'),
         description: errorMessage,
       });
       console.error(error);
@@ -90,8 +92,8 @@ export function AuthForm() {
     if (!email) {
       toast({
         variant: "destructive",
-        title: "Correo electrónico requerido",
-        description: "Por favor, introduce tu correo para restablecer la contraseña.",
+        title: t('passwordReset.emailRequired.title'),
+        description: t('passwordReset.emailRequired'),
       });
       return;
     }
@@ -99,18 +101,18 @@ export function AuthForm() {
     try {
       await sendPasswordResetEmail(auth, email);
       toast({
-        title: "Correo de recuperación enviado",
-        description: "Revisa tu bandeja de entrada para restablecer tu contraseña.",
+        title: t('passwordReset.success.title'),
+        description: t('passwordReset.success.description'),
       });
     } catch (error) {
-      let errorMessage = "Ocurrió un error inesperado.";
+      let errorMessage = t('auth.error.generic');
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case 'auth/invalid-email':
-            errorMessage = "El formato del correo electrónico no es válido.";
+            errorMessage = t('auth.error.invalidEmail');
             break;
           case 'auth/user-not-found':
-            errorMessage = "No se encontró ninguna cuenta con este correo.";
+            errorMessage = t('passwordReset.error.userNotFound');
             break;
           default:
             errorMessage = "Error: " + error.message;
@@ -119,7 +121,7 @@ export function AuthForm() {
       }
       toast({
         variant: "destructive",
-        title: "Error al enviar el correo",
+        title: t('passwordReset.error.title'),
         description: errorMessage,
       });
       console.error(error);
@@ -131,24 +133,24 @@ export function AuthForm() {
   return (
     <Tabs defaultValue="login" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
-        <TabsTrigger value="signup">Registrarse</TabsTrigger>
+        <TabsTrigger value="login">{t('auth.tabs.login')}</TabsTrigger>
+        <TabsTrigger value="signup">{t('auth.tabs.signup')}</TabsTrigger>
       </TabsList>
       <TabsContent value="login">
         <Card>
           <CardHeader>
-            <CardTitle>Iniciar Sesión</CardTitle>
+            <CardTitle>{t('auth.login.title')}</CardTitle>
             <CardDescription>
-              Accede a tu cuenta para continuar tu viaje.
+              {t('auth.login.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="login-email">Correo Electrónico</Label>
+              <Label htmlFor="login-email">{t('auth.emailLabel')}</Label>
               <Input
                 id="login-email"
                 type="email"
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
@@ -156,9 +158,9 @@ export function AuthForm() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="login-password">Contraseña</Label>
+                <Label htmlFor="login-password">{t('auth.passwordLabel')}</Label>
                 <Button variant="link" className="p-0 h-auto text-xs text-muted-foreground" onClick={handlePasswordReset} disabled={loading}>
-                  ¿Olvidaste tu contraseña?
+                  {t('auth.forgotPassword')}
                 </Button>
               </div>
               <Input
@@ -176,7 +178,7 @@ export function AuthForm() {
               onClick={() => handleAuth(false)}
               disabled={loading}
             >
-              {loading ? "Iniciando..." : "Iniciar Sesión"}
+              {loading ? t('auth.login.loadingButton') : t('auth.login.button')}
             </Button>
           </CardFooter>
         </Card>
@@ -184,25 +186,25 @@ export function AuthForm() {
       <TabsContent value="signup">
         <Card>
           <CardHeader>
-            <CardTitle>Registrarse</CardTitle>
+            <CardTitle>{t('auth.signup.title')}</CardTitle>
             <CardDescription>
-              Crea una cuenta para personalizar tu experiencia.
+              {t('auth.signup.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="signup-email">Correo Electrónico</Label>
+              <Label htmlFor="signup-email">{t('auth.emailLabel')}</Label>
               <Input
                 id="signup-email"
                 type="email"
-                placeholder="tu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signup-password">Contraseña</Label>
+              <Label htmlFor="signup-password">{t('auth.passwordLabel')}</Label>
               <Input
                 id="signup-password"
                 type="password"
@@ -218,7 +220,7 @@ export function AuthForm() {
               onClick={() => handleAuth(true)}
               disabled={loading}
             >
-              {loading ? "Creando cuenta..." : "Registrarse"}
+              {loading ? t('auth.signup.loadingButton') : t('auth.signup.button')}
             </Button>
           </CardFooter>
         </Card>

@@ -8,10 +8,12 @@ import { libraryItems } from "@/lib/data";
 import type { LibraryItem } from "@/lib/data";
 import { InProgressSection } from "@/components/library/in-progress-section";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "@/components/providers/language-provider";
 
 export default function LibraryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const filteredItems = libraryItems.filter(item => {
     const matchesSearch =
@@ -35,10 +37,10 @@ export default function LibraryPage() {
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline">
-          Librería Emocional
+          {t('library.title')}
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Un refugio digital con contenido curado para nutrir cada estado emocional.
+          {t('library.description')}
         </p>
       </div>
 
@@ -49,14 +51,14 @@ export default function LibraryPage() {
       <div className="space-y-6" id="all-books">
         <div className="space-y-2">
             <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl font-headline flex items-center gap-2">
-                <Book className="h-6 w-6" /> Todos los Libros
+                <Book className="h-6 w-6" /> {t('library.allBooks')}
             </h3>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
-                placeholder="Buscar por título o autor..." 
+                placeholder={t('library.searchPlaceholder')}
                 className="pl-10" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

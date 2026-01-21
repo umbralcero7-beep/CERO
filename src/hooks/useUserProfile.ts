@@ -8,6 +8,7 @@ interface UserProfile {
   email: string;
   createdAt: string;
   role: 'free' | 'pro';
+  photoURL?: string;
 }
 
 export function useUserProfile() {

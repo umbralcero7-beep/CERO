@@ -1,14 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-
-const moods = [
-  { emoji: "😊", label: "Feliz" },
-  { emoji: "😌", label: "Calmado" },
-  { emoji: "🤔", label: "Pensativo" },
-  { emoji: "😩", label: "Cansado" },
-  { emoji: "😤", label: "Estresado" },
-  { emoji: "😢", label: "Triste" },
-];
+import { useTranslation } from "../providers/language-provider";
 
 type MoodSelectorProps = {
   onMoodSelect: (mood: string) => void;
@@ -17,6 +9,17 @@ type MoodSelectorProps = {
 };
 
 export function MoodSelector({ onMoodSelect, selectedMood, disabled }: MoodSelectorProps) {
+  const { t } = useTranslation();
+
+  const moods = [
+    { emoji: "😊", label: t("dashboard.mood.feliz") },
+    { emoji: "😌", label: t("dashboard.mood.calmado") },
+    { emoji: "🤔", label: t("dashboard.mood.pensativo") },
+    { emoji: "😩", label: t("dashboard.mood.cansado") },
+    { emoji: "😤", label: t("dashboard.mood.estresado") },
+    { emoji: "😢", label: t("dashboard.mood.triste") },
+  ];
+  
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
       {moods.map(({ emoji, label }) => (
