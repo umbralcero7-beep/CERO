@@ -7,14 +7,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { Header } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { Capacitor } from "@capacitor/core";
+import { SplashScreen } from "@capacitor/splash-screen";
+import { CapacitorInit } from "@/components/capacitor/capacitor-init";
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
 
+  // Effect for user authentication and splash screen
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
+    }
+    
+    // Hide the splash screen once the main layout is ready
+    if (Capacitor.isNativePlatform()) {
+      SplashScreen.hide();
     }
   }, [user, isUserLoading, router]);
 
@@ -49,6 +58,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+      <CapacitorInit />
       {/* Desktop Sidebar */}
       <SidebarNav />
       

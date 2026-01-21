@@ -18,6 +18,8 @@
     "cap:sync": "npx cap sync"
   },
   "dependencies": {
+    "@capacitor/push-notifications": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
     "@ducanh2912/next-pwa": "^10.2.7",
     "@genkit-ai/google-genai": "^1.20.0",
     "@genkit-ai/next": "^1.20.0",
@@ -54,7 +56,7 @@
     "next": "15.5.9",
     "patch-package": "^8.0.0",
     "react": "^19.2.1",
-    "react-day-picker": "^9.11.3",
+    "react-day-picker": "^9.0.4",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",

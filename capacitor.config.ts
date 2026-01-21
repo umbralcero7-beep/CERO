@@ -7,7 +7,19 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://cero-83hm.vercel.app',
     cleartext: true
-  }
+  },
+  plugins: {
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
+    SplashScreen: {
+      launchShowDuration: 3000,
+      launchAutoHide: false,
+      backgroundColor: "#222d4c", // Similar to .cosmos background
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+    },
+  },
 };
 
 export default config;
