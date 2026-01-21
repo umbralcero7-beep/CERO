@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Umbral',
   webDir: 'public', // Using 'public' as it exists. The app will load the remote URL.
   server: {
-    url: 'https://cero-83hm.vercel.app',
+    url: 'https://REPLACE_WITH_YOUR_VERCEL_URL',
     cleartext: true
   },
   plugins: {
