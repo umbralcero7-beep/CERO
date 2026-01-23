@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Repeat, BookOpen, Quote, Sparkles } from "lucide-react";
+import { Repeat, BookOpen, Quote, Sparkles, Star } from "lucide-react";
 import type { PersonalizedRecommendationsOutput } from "@/ai/flows/personalized-recommendations";
 import { useTranslation } from "../providers/language-provider";
 
@@ -66,6 +66,18 @@ export function RecommendationCard({ loading, recommendations, mood }: Recommend
                 <div>
                     <h3 className="font-semibold text-foreground">{t('recommendationCard.phrase')}</h3>
                     <p className="text-muted-foreground italic">"{recommendations.inspirationalPhrase}"</p>
+                </div>
+            </div>
+        )}
+
+        {recommendations.symbolicPhrase && (
+             <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                    <Star className="w-5 h-5 text-secondary-foreground" />
+                </div>
+                <div>
+                    <h3 className="font-semibold text-foreground">{t('recommendationCard.symbolicPhrase')}</h3>
+                    <p className="text-muted-foreground italic">"{recommendations.symbolicPhrase}"</p>
                 </div>
             </div>
         )}

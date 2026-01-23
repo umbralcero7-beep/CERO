@@ -74,7 +74,7 @@ export function AuthForm() {
             errorMessage = t('auth.error.weakPassword');
             break;
           default:
-            errorMessage = t('auth.error.generic');
+            errorMessage = "Error: " + error.message;
         }
       }
       toast({

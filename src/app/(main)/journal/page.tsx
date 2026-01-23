@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { useState, useMemo } from 'react';
+import { useCollection, useUser } from '@/firebase';
+import { orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -13,7 +13,6 @@ import { analyzeJournalEntry, JournalAnalysisOutput } from '@/ai/flows/analyze-j
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 
 // A map to get emoji from mood label, since it's not stored in Firestore
 const moodToEmoji: { [key: string]: string } = {
@@ -34,7 +33,6 @@ const moodToEmoji: { [key: string]: string } = {
 
 export default function JournalPage() {
     const { user } = useUser();
-    const firestore = useFirestore();
     const { t, locale } = useTranslation();
     const { toast } = useToast();
     const dateLocale = locale === 'es' ? es : enUS;
@@ -42,12 +40,12 @@ export default function JournalPage() {
     const [analyses, setAnalyses] = useState<Record<string, JournalAnalysisOutput | null>>({});
     const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
-    const moodLogsQuery = useMemoFirebase(
-        () => user ? query(collection(firestore, 'users', user.uid, 'moodLogs'), orderBy('timestamp', 'desc')) : null,
-        [firestore, user]
-    );
+    const collectionPath = user ? `users/${user.uid}/moodLogs` : null;
+    const constraints = useMemo(() => [
+        orderBy('timestamp', 'desc')
+    ], []);
 
-    const { data: moodLogs, isLoading } = useCollection(moodLogsQuery);
+    const { data: moodLogs, isLoading } = useCollection(collectionPath, constraints);
 
     const handleAnalyze = async (logId: string, text: string) => {
         setLoadingStates(prev => ({ ...prev, [logId]: true }));
@@ -119,6 +117,7 @@ export default function JournalPage() {
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <CardTitle className="text-xl">
+                                                {/* @ts-ignore */}
                                                 {format(new Date(log.timestamp.seconds * 1000), "d 'de' MMMM 'de' yyyy", { locale: dateLocale })}
                                             </CardTitle>
                                             <CardDescription>

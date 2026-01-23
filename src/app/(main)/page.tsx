@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { getPersonalizedRecommendations, type PersonalizedRecommendationsOutput } from "@/ai/flows/personalized-recommendations";
-import { CeroBot } from "@/components/dashboard/cero-bot";
-import { MoodSelector } from "@/components/dashboard/mood-selector";
-import { RecommendationCard } from "@/components/dashboard/recommendation-card";
-import { useToast } from "@/hooks/use-toast";
-import { JournalDialog } from "@/components/journal/journal-dialog";
-import { useUser, useFirestore } from "@/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { HabitReminder } from "@/components/habits/habit-reminder";
-import { useTranslation } from "@/components/providers/language-provider";
+import { useState } from 'react';
+import { getPersonalizedRecommendations, type PersonalizedRecommendationsOutput } from '@/ai/flows/personalized-recommendations';
+import { CeroBot } from '@/components/dashboard/cero-bot';
+import { MoodSelector } from '@/components/dashboard/mood-selector';
+import { RecommendationCard } from '@/components/dashboard/recommendation-card';
+import { useToast } from '@/hooks/use-toast';
+import { JournalDialog } from '@/components/journal/journal-dialog';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { HabitReminder } from '@/components/habits/habit-reminder';
+import { useTranslation } from '@/components/providers/language-provider';
+import { ProactiveCero } from '@/components/dashboard/proactive-cero';
 
 export default function DashboardPage() {
   const [mood, setMood] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export default function DashboardPage() {
     setIsJournalOpen(true); // Open journal dialog
   };
 
-  const handleJournalSave = async (notes: string) => {
+  const handleJournalSave = async (data: { notes: string }) => {
     if (!mood || !user) return;
 
     setLoading(true);
@@ -38,12 +39,12 @@ export default function DashboardPage() {
 
     try {
       // Save mood log with notes to Firestore
-      const moodLogRef = collection(firestore, 'users', user.uid, 'moodLogs');
+      const moodLogRef = collection(firestore, 'users', user.uid, 'moodHistory');
       await addDoc(moodLogRef, {
         userId: user.uid,
         mood: mood,
-        notes: notes,
-        timestamp: serverTimestamp()
+        notes: data.notes,
+        createdAt: serverTimestamp(),
       });
 
       toast({
@@ -51,14 +52,17 @@ export default function DashboardPage() {
         description: t('dashboard.journalSave.toast.description'),
       });
 
-      // Fetch personalized recommendations
-      const result = await getPersonalizedRecommendations({ mood, journalText: notes });
+      // Fetch personalized recommendations using text only
+      const result = await getPersonalizedRecommendations({
+        mood,
+        journalText: data.notes,
+      });
       setRecommendations(result);
 
     } catch (error) {
-      console.error("Error al obtener las recomendaciones:", error);
+      console.error('Error al obtener las recomendaciones:', error);
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: t('dashboard.recommendationError.toast.title'),
         description: t('dashboard.recommendationError.toast.description'),
       });
@@ -68,12 +72,17 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 text-center">
+    <div className='flex flex-col items-center gap-8 text-center'>
       <HabitReminder />
+      {user?.uid &&
+        <div className='w-full max-w-2xl'>
+          <ProactiveCero />
+        </div>
+      }
       <CeroBot />
-      <div className="space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline">{t('dashboard.title')}</h2>
-          <p className="text-muted-foreground">{t('dashboard.description')}</p>
+      <div className='space-y-2'>
+          <h2 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-headline'>{t('dashboard.title')}</h2>
+          <p className='text-muted-foreground'>{t('dashboard.description')}</p>
       </div>
       <MoodSelector
         onMoodSelect={handleMoodSelect}
@@ -92,7 +101,7 @@ export default function DashboardPage() {
       )}
       
       {(loading || recommendations) && (
-          <div className="w-full flex justify-center pt-8">
+          <div className='w-full flex justify-center pt-8'>
               <RecommendationCard 
                 loading={loading} 
                 recommendations={recommendations} 

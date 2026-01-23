@@ -54,8 +54,12 @@ export const habitProgress = [
 ];
 
 export const achievements = [
-    { id: 'ach1', title: 'Primera Racha', description: 'Completaste 3 días seguidos.', icon: 'Flame' },
-    { id: 'ach2', title: 'Lector Voraz', description: 'Terminaste 5 lecturas.', icon: 'BookMarked' },
-    { id: 'ach3', title: 'Mente Clara', description: 'Meditaste por 7 días.', icon: 'BrainCircuit' },
-    { id: 'ach4', title: 'Explorador Emocional', description: 'Registraste 10 estados de ánimo.', icon: 'Smile' },
+    { id: 'achievements.mood_1', title: 'Primer Paso', description: 'Registraste tu primer estado de ánimo.', icon: 'Smile' },
+    { id: 'achievements.mood_10', title: 'Explorador Emocional', description: 'Registraste 10 estados de ánimo.', icon: 'Compass' },
+    { id: 'achievements.mood_25', title: 'Viajero Consciente', description: 'Registraste 25 estados de ánimo.', icon: 'Map' },
+    { id: 'achievements.mood_50', title: 'Guardián del Umbral', description: 'Registraste 50 estados de ánimo.', icon: 'Key' },
+    { id: 'achievements.mood_100', title: 'Maestro del Ser', description: 'Has alcanzado el nivel de Maestro del Ser.', icon: 'Star' },
+    { id: 'achievements.habit_1', title: 'Nuevo Hábito', description: 'Creaste tu primer hábito.', icon: 'PlusCircle' },
+    { id: 'achievements.habit_log_1', title: '¡En Camino!', description: 'Completaste un hábito por primera vez.', icon: 'CheckCircle' },
+    { id: 'achievements.habit_log_10', title: 'Constancia', description: 'Completaste hábitos 10 veces.', icon: 'Award' },
 ]

@@ -3,12 +3,13 @@
 /**
  * @fileOverview Provides personalized recommendations for habits and readings based on the user's mood.
  *
- * - getPersonalizedRecommendations - A function that takes a mood as input and returns personalized habit and reading recommendations.
+ * - getPersonalizedRecommendations - A function that takes mood and journal text and returns recommendations.
  * - PersonalizedRecommendationsInput - The input type for the getPersonalizedRecommendations function.
  * - PersonalizedRecommendationsOutput - The return type for the getPersonalizedRecommendations function.
  */
 
-import {ai} from '@/ai/genkit';
+// Import geminiFlash from the central config file
+import {ai, geminiFlash} from '@/ai/genkit';
 import {z} from 'genkit';
 import { libraryItems } from '@/lib/data';
 
@@ -17,6 +18,7 @@ const bookSchema = z.object({
   author: z.string(),
 });
 
+// Simplified Input Schema (no voiceAnalysis)
 const PersonalizedRecommendationsInputSchema = z.object({
   mood: z.string().describe('The current mood of the user.'),
   journalText: z.string().optional().describe("The user's journal entry, if provided."),
@@ -29,13 +31,16 @@ export type PersonalizedRecommendationsInput = z.infer<
 const PersonalizedRecommendationsOutputSchema = z.object({
   inspirationalPhrase: z
     .string()
-    .describe("Una frase empática y motivadora corta (1-2 líneas) basada en el estado de ánimo y el diario del usuario."),
+    .describe('Una frase empática y motivadora corta (1-2 líneas) basada en el estado de ánimo y el diario del usuario.'),
   habitRecommendation: z
     .string()
     .describe('Un hábito simple y accionable basado en la situación del usuario.'),
   readingRecommendation: z
     .string()
     .describe('Un libro de la biblioteca que sea relevante para la situación actual del usuario. Formato: "Título por Autor".'),
+  symbolicPhrase: z
+    .string()
+    .describe('Una frase corta, poética y simbólica que actúe como un "eco" empático de los pensamientos del usuario. Ejemplo: "Incluso en la quietud, tu luz sigue brillando.'),
 });
 export type PersonalizedRecommendationsOutput = z.infer<
   typeof PersonalizedRecommendationsOutputSchema
@@ -48,22 +53,33 @@ export async function getPersonalizedRecommendations(
   return personalizedRecommendationsFlow({ ...input, books });
 }
 
+// Simplified Prompt (no voice analysis)
 const prompt = ai.definePrompt({
   name: 'personalizedRecommendationsPrompt',
+  // Explicitly set the model to the one defined in genkit.ts
+  model: geminiFlash,
   input: {schema: PersonalizedRecommendationsInputSchema},
   output: {schema: PersonalizedRecommendationsOutputSchema},
-  prompt: `Eres Cero, un asistente de IA empático y experto en bienestar. Tu objetivo es proporcionar apoyo personalizado y accionable que sea dinámico y variado.
+  prompt: `Eres Cero, un asistente de IA excepcionalmente empático y experto en bienestar. Tu objetivo es proporcionar apoyo profundo y personalizado.
 
 Un usuario ha compartido cómo se siente.
 - Estado de ánimo: {{{mood}}}
 {{#if journalText}}
-- Pensamientos en su diario: {{{journalText}}}
+- Pensamientos: {{{journalText}}}
 {{/if}}
 
-Tu tarea es responder con tres cosas, en este orden:
-1.  **Frase Inspiradora**: Basado en su estado de ánimo y su diario, escribe una frase corta (1-2 líneas), empática y poderosa que se sienta genuina y no genérica.
-2.  **Sugerir un Hábito**: Basado en su situación, sugiere un hábito simple, concreto y accionable para contrarrestar su estado de ánimo actual. Por ejemplo, si el usuario está **triste**, sugiere algo como "Ponte unos auriculares y escucha tu canción favorita, esa que siempre te levanta el ánimo" o "Sal a caminar 5 minutos para despejar la mente". Si está **estresado**, sugiere "Tómate 3 minutos para hacer respiraciones profundas y lentas". Evita sugerencias genéricas.
-3.  **Sugerir una Lectura**: Analiza profundamente el estado de ánimo y los pensamientos del usuario. Elige el libro de la siguiente lista que sea **el más relevante y útil** para su situación actual. Por ejemplo, si el usuario se siente perdido o sin propósito, 'El sutil arte de que (no) te importe nada' podría ser una buena opción. Si se siente abrumado, 'El poder del ahora' podría ayudarle. **Es crucial que varíes tus sugerencias y no recomiendes siempre el mismo libro.** Formatea tu respuesta como "Título por Autor".
+Tu tarea es responder con un único objeto JSON que se adhiera al siguiente esquema. No añadas texto ni explicaciones fuera del objeto JSON.
+\`\`\`json
+{
+  "inspirationalPhrase": "Una frase empática y motivadora corta (1-2 líneas) basada en el estado de ánimo y el diario del usuario.",
+  "habitRecommendation": "Un hábito simple y accionable basado en la situación del usuario.",
+  "readingRecommendation": "Un libro de la biblioteca que sea relevante para la situación actual del usuario. Formato: 'Título por Autor'.",
+  "symbolicPhrase": "Una frase corta, poética y simbólica que actúe como un 'eco' empático de los pensamientos del usuario. Debe ser como un espejo, reflejando el tono y el sentimiento de su entrada en el diario. Por ejemplo, si el usuario se siente 'cansado pero esperanzado', una buena frase sería: 'Incluso en la quietud, tu luz sigue brillando.'"
+}
+\`\`\`
+
+Analiza profundamente el estado de ánimo y los pensamientos del usuario para generar los valores para cada campo.
+Para 'readingRecommendation', elige el libro más relevante de la siguiente lista. Varía tus sugerencias.
 
 Libros disponibles:
 {{#each books}}
@@ -84,6 +100,7 @@ const personalizedRecommendationsFlow = ai.defineFlow(
         inspirationalPhrase: 'Error de Configuración: La clave de API para el servicio de IA no está definida.',
         habitRecommendation: 'Añade tu clave en un archivo .env para recibir sugerencias.',
         readingRecommendation: 'Inténtalo de nuevo después de configurar la clave.',
+        symbolicPhrase: 'La conexión con tu guía interior está esperando.',
       };
     }
     try {
@@ -96,6 +113,7 @@ const personalizedRecommendationsFlow = ai.defineFlow(
           inspirationalPhrase: 'Error de autenticación con la IA.',
           habitRecommendation: 'La clave de API podría no ser válida.',
           readingRecommendation: 'Por favor, verifica tu configuración.',
+          symbolicPhrase: 'Parece que hay una interferencia en la señal.',
         };
       }
       // Return a default recommendation that is more random
@@ -104,6 +122,7 @@ const personalizedRecommendationsFlow = ai.defineFlow(
         inspirationalPhrase: 'Recuerda ser amable contigo mismo. Cada día es una nueva oportunidad.',
         habitRecommendation: 'Dedica 5 minutos a la lectura consciente.',
         readingRecommendation: `${fallbackBook.title} por ${fallbackBook.author}`,
+        symbolicPhrase: 'Cada momento es un nuevo comienzo.',
       };
     }
   }

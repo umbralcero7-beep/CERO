@@ -76,7 +76,7 @@ const chatWithBookFlow = ai.defineFlow(
     
     try {
       const { text } = await ai.generate({ // Use text for the response
-        model: 'googleai/gemini-2.5-flash',
+        model: 'gemini-1.5-flash-latest', // Corrected model name
         system: systemPrompt, // Use the 'system' parameter for instructions
         messages: messages,
       });

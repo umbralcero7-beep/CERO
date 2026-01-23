@@ -1,5 +1,5 @@
-"use client";
-import { useState } from "react";
+'use client';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,32 +7,36 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { useTranslation } from "../providers/language-provider";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '../providers/language-provider';
 
 interface JournalDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (notes: string) => void;
+  onSave: (data: { notes: string }) => void;
   mood: string | null;
   loading: boolean;
 }
 
 export function JournalDialog({ open, onOpenChange, onSave, mood, loading }: JournalDialogProps) {
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState('');
   const { t } = useTranslation();
 
+  useEffect(() => {
+    if (!open) {
+      setNotes('');
+    }
+  }, [open]);
+
   const handleSave = () => {
-    onSave(notes);
-    setNotes(""); // Reset notes after saving
+    onSave({ notes });
   };
-  
+
   const handleClose = () => {
     onOpenChange(false);
-    setNotes("");
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -43,21 +47,24 @@ export function JournalDialog({ open, onOpenChange, onSave, mood, loading }: Jou
             {t('journalDialog.description')}
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
+        <div className='py-4'>
           <Textarea
             placeholder={t('journalDialog.placeholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={6}
+            disabled={loading}
           />
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={loading}>
-            {t('journalDialog.cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? t('journalDialog.saving') : t('journalDialog.save')}
-          </Button>
+          <div className='flex gap-2 w-full justify-end'>
+            <Button variant='outline' onClick={handleClose} disabled={loading}>
+              {t('journalDialog.cancel')}
+            </Button>
+            <Button onClick={handleSave} disabled={loading || !notes}>
+              {loading ? t('journalDialog.saving') : t('journalDialog.save')}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
