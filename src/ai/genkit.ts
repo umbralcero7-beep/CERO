@@ -1,15 +1,20 @@
-import {configure} from 'genkit';
+import {configure, ai} from 'genkit';
 import {googleAI} from '@genkit-ai/google-genai';
 
-// Initialize Genkit and configure the Google AI plugin.
-// This setup is automatically used by all Genkit flows.
+// 1. Instantiate the plugin
+const google = googleAI({
+  apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+});
+
+// 2. Configure Genkit with the plugin instance
 configure({
-  plugins: [
-    // The API key is loaded from environment variables.
-    googleAI({apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY}),
-  ],
-  // Log level for debugging.
+  plugins: [google],
   logLevel: 'debug',
-  // Enable tracing for dev environments.
   enableTracing: true,
 });
+
+// 3. Get a reference to the model and export it
+export const geminiFlash = google.model('gemini-1.5-flash-latest');
+
+// 4. Export the 'ai' helper
+export {ai};
