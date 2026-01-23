@@ -7,7 +7,7 @@ const withPWA = _withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
-});
+} as any);
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['genkit', '@genkit-ai/googleai', '@genkit-ai/firebase'],
   },
   images: {
     remotePatterns: [
