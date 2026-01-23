@@ -1,6 +1,5 @@
-import { generate } from '@genkit-ai/ai';
-import { defineFlow } from '@genkit-ai/flow';
-import * as googleGenai from '@genkit-ai/google-genai';
+import { ai } from '../genkit';
+import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
 // Define the schema for the AI's output
@@ -9,7 +8,7 @@ const ProactiveMessageOutput = z.object({
     message: z.string().describe('The proactive, personalized message for the user. Should be empty if shouldDisplay is false.')
 });
 
-export const predictiveEngagementFlow = defineFlow(
+export const predictiveEngagementFlow = ai.defineFlow(
   {
     name: 'predictiveEngagementFlow',
     inputSchema: z.object({
@@ -49,8 +48,8 @@ export const predictiveEngagementFlow = defineFlow(
         Based on your analysis, decide if a message should be displayed and what that message should be.
     `;
 
-    const llmResponse = await generate({
-      model: googleGenai.geminiPro,
+    const llmResponse = await ai.generate({
+      model: gemini15Flash,
       prompt,
       output: {
           schema: ProactiveMessageOutput
@@ -60,6 +59,6 @@ export const predictiveEngagementFlow = defineFlow(
       },
     });
 
-    return llmResponse.output()!;
+    return llmResponse;
   }
 );
