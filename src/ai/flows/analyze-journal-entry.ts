@@ -8,7 +8,7 @@
  * output for use in the application.
  */
 
-import {generate, model} from 'genkit/ai';
+import {generate, model} from 'genkit';
 import {z} from 'zod';
 
 // Define the expected input schema for the journal analysis.
