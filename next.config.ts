@@ -1,4 +1,3 @@
-
 import type {NextConfig} from 'next';
 import _withPWA from '@ducanh2912/next-pwa';
 
@@ -17,9 +16,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['genkit', '@genkit-ai/googleai', '@genkit-ai/firebase'],
-  },
+  serverExternalPackages: ['genkit', '@genkit-ai/googleai', '@genkit-ai/firebase'],
   images: {
     remotePatterns: [
       {
