@@ -8,8 +8,8 @@
  * output for use in the application.
  */
 
-import {generate, model} from 'genkit';
-import {z} from 'zod';
+import { ai, geminiFlash } from '@/ai/genkit';
+import { z } from 'zod';
 
 // Define the expected input schema for the journal analysis.
 export const JournalAnalysisInputSchema = z.object({
@@ -27,23 +27,6 @@ export const JournalAnalysisOutputSchema = z.object({
     .describe('A list of 1 to 3 key emotions identified in the text.'),
 });
 export type JournalAnalysisOutput = z.infer<typeof JournalAnalysisOutputSchema>;
-
-// Define the AI model for journal analysis.
-const journalAnalysisModel = model({
-  name: 'journalAnalyzer',
-  // Specifies the Google Gemini model to use.
-  model: 'googleai/gemini-1.5-flash-latest',
-  // System prompt to guide the AI's behavior.
-  systemPrompt: `Eres un analista de IA perspicaz y empático. Tu tarea es analizar la siguiente entrada de diario.
-
-Instrucciones:
-1. Escribe un resumen breve (2-3 frases) que capture la esencia de los pensamientos y sentimientos del usuario de una manera validante, sin prejuicios y que ofrezca una perspectiva constructiva.
-2. Identifica de 1 a 3 de las emociones o sentimientos más destacados en el texto. Sé específico.`,
-  // Define the input and output schemas for structured data handling.
-  tools: [],
-  input: {schema: JournalAnalysisInputSchema},
-  output: {schema: JournalAnalysisOutputSchema},
-});
 
 /**
  * Analyzes a journal entry using the configured AI model.
@@ -66,11 +49,13 @@ export async function analyzeJournalEntry(
 
   try {
     // Generate the analysis using the AI model.
-    const {output} = await generate({
-      model: journalAnalysisModel,
-      prompt: {journalText: input.journalText},
+    const response = await ai.generate({
+      model: geminiFlash,
+      system: `Eres un analista de IA perspicaz y empático. Tu tarea es analizar la siguiente entrada de diario.\n\nInstrucciones:\n1. Escribe un resumen breve (2-3 frases) que capture la esencia de los pensamientos y sentimientos del usuario de una manera validante, sin prejuicios y que ofrezca una perspectiva constructiva.\n2. Identifica de 1 a 3 de las emociones o sentimientos más destacados en el texto. Sé específico.`,
+      prompt: { journalText: input.journalText },
+      output: { schema: JournalAnalysisOutputSchema },
     });
-    return output!;
+    return response.output()!;
   } catch (e) {
     console.error('AI journal analysis flow failed, providing fallback:', e);
     if (

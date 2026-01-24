@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -9,7 +8,7 @@
  * - SuggestedHabit: El tipo para un único hábito sugerido.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai, geminiFlash } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const OnboardingInputSchema = z.object({
@@ -32,21 +31,10 @@ export async function suggestHabits(input: OnboardingInput): Promise<SuggestedHa
 
 const prompt = ai.definePrompt({
   name: 'suggestHabitsPrompt',
+  model: geminiFlash,
   input: { schema: OnboardingInputSchema },
   output: { schema: HabitSuggestionOutputSchema },
-  prompt: `Eres Cero, un asistente de IA experto en bienestar.
-Tu tarea es analizar las respuestas de un nuevo usuario y sugerir 3 hábitos simples, concretos y accionables para empezar.
-
-Contexto del usuario:
-- Objetivo principal: {{{goal}}}
-- Mayor desafío actual: {{{challenge}}}
-
-Basado en esto, genera una lista de 3 hábitos. Cada hábito debe ser:
-- Sencillo de empezar (ej. "5 minutos de...", "Escribir 3 cosas...").
-- Directamente relacionado con su objetivo y desafío.
-- Tener un nombre motivador y una descripción clara.
-
-No añadas introducciones ni texto adicional. Devuelve solo el array de objetos de hábitos.`,
+  prompt: `Eres Cero, un asistente de IA experto en bienestar.\nTu tarea es analizar las respuestas de un nuevo usuario y sugerir 3 hábitos simples, concretos y accionables para empezar.\n\nContexto del usuario:\n- Objetivo principal: {{{goal}}}\n- Mayor desafío actual: {{{challenge}}}\n\nBasado en esto, genera una lista de 3 hábitos. Cada hábito debe ser:\n- Sencillo de empezar (ej. "5 minutos de...", "Escribir 3 cosas...").\n- Directamente relacionado con su objetivo y desafío.\n- Tener un nombre motivador y una descripción clara.\n\nNo añadas introducciones ni texto adicional. Devuelve solo el array de objetos de hábitos.`,
 });
 
 const suggestHabitsFlow = ai.defineFlow(

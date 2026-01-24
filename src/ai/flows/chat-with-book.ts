@@ -8,7 +8,7 @@
  * - ChatWithBookOutput - The return type for the chatWithBook function.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai, geminiFlash } from '@/ai/genkit';
 import { z } from 'genkit';
 import { GenerateRequest } from 'genkit/generate';
 
@@ -75,11 +75,12 @@ const chatWithBookFlow = ai.defineFlow(
     messages.push({ role: 'user', content: [{ text: userQuestion }] });
     
     try {
-      const { text } = await ai.generate({ // Use text for the response
-        model: 'gemini-1.5-flash-latest', // Corrected model name
-        system: systemPrompt, // Use the 'system' parameter for instructions
+      const response = await ai.generate({ 
+        model: geminiFlash, 
+        system: systemPrompt, 
         messages: messages,
       });
+      const text = response.text();
       return text || (userLocale === 'es' ? 'Lo siento, no pude procesar esa pregunta.' : 'Sorry, I could not process that question.');
     } catch (e) {
       console.error('AI chat with book flow failed:', e);

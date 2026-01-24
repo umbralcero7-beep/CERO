@@ -1,5 +1,4 @@
-import { ai } from '../genkit';
-import { gemini15Flash } from '@genkit-ai/googleai';
+import { ai, geminiFlash } from '@/ai/genkit';
 import { z } from 'zod';
 
 // Define the schema for the AI's output
@@ -49,7 +48,7 @@ export const predictiveEngagementFlow = ai.defineFlow(
     `;
 
     const llmResponse = await ai.generate({
-      model: gemini15Flash,
+      model: geminiFlash,
       prompt,
       output: {
           schema: ProactiveMessageOutput
@@ -59,6 +58,15 @@ export const predictiveEngagementFlow = ai.defineFlow(
       },
     });
 
-    return llmResponse;
+    const output = llmResponse.output();
+
+    if (!output) {
+      return {
+        shouldDisplay: false,
+        message: ''
+      }
+    }
+
+    return output;
   }
 );
