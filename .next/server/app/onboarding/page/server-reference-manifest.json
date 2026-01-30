@@ -1,0 +1,20 @@
+{
+  "node": {
+    "40562682cfe5c1eb8206ff855a5568fb6e8762fa64": {
+      "workers": {
+        "app/onboarding/page": {
+          "moduleId": "[project]/.next-internal/server/app/onboarding/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/suggest-habits.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "suggestHabits",
+          "filename": "src/ai/flows/suggest-habits.ts"
+        }
+      },
+      "layer": {
+        "app/onboarding/page": "action-browser"
+      },
+      "exportedName": "suggestHabits",
+      "filename": "src/ai/flows/suggest-habits.ts"
+    }
+  },
+  "edge": {}
+}

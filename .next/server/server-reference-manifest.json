@@ -1,0 +1,36 @@
+{
+  "node": {
+    "400c1a5fcd631d3de455759932f98069c54bdc27a2": {
+      "workers": {
+        "app/(main)/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/personalized-recommendations.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getPersonalizedRecommendations",
+          "filename": "src/ai/flows/personalized-recommendations.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/page": "action-browser"
+      },
+      "filename": "src/ai/flows/personalized-recommendations.ts",
+      "exportedName": "getPersonalizedRecommendations"
+    },
+    "40562682cfe5c1eb8206ff855a5568fb6e8762fa64": {
+      "workers": {
+        "app/onboarding/page": {
+          "moduleId": "[project]/.next-internal/server/app/onboarding/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/suggest-habits.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "suggestHabits",
+          "filename": "src/ai/flows/suggest-habits.ts"
+        }
+      },
+      "layer": {
+        "app/onboarding/page": "action-browser"
+      },
+      "filename": "src/ai/flows/suggest-habits.ts",
+      "exportedName": "suggestHabits"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "S1VtmfV4iwiTXj+fvicDi6nFLrmPZVWAguj3vDpAY4I="
+}

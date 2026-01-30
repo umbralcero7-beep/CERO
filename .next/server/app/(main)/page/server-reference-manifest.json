@@ -1,0 +1,20 @@
+{
+  "node": {
+    "400c1a5fcd631d3de455759932f98069c54bdc27a2": {
+      "workers": {
+        "app/(main)/page": {
+          "moduleId": "[project]/.next-internal/server/app/(main)/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/personalized-recommendations.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "getPersonalizedRecommendations",
+          "filename": "src/ai/flows/personalized-recommendations.ts"
+        }
+      },
+      "layer": {
+        "app/(main)/page": "action-browser"
+      },
+      "exportedName": "getPersonalizedRecommendations",
+      "filename": "src/ai/flows/personalized-recommendations.ts"
+    }
+  },
+  "edge": {}
+}

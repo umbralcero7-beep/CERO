@@ -1,0 +1,7 @@
+{
+  "/(main)/library/page": "app/(main)/library/page.js",
+  "/(main)/page": "app/(main)/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/onboarding/page": "app/onboarding/page.js"
+}
